@@ -1,11 +1,10 @@
 const path = require('path')
-const IS_PROD = ["production", "prod"].includes(process.env.NODE_ENV);
 
 module.exports = {
   devServer: {
     proxy: {
-      '/api': { //代理标识
-        target: 'http://127.0.0.1:3000',//指向的实际地址
+      '/api': { // 代理标识
+        target: 'http://127.0.0.1:3000', // 指向的实际地址
         changeOrigin: true, // 允许跨域
         pathRewrite: {
           '^/api': '/'
@@ -13,7 +12,7 @@ module.exports = {
       }
     }
   },
-  chainWebpack: (config)=>{
+  chainWebpack: (config) => {
     config.resolve.alias
       .set('@$', path.join(__dirname, 'src'))
       .set('components', path.join(__dirname, 'src/components'))

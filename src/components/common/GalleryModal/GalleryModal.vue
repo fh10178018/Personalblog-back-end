@@ -1,5 +1,5 @@
 <template>
-  <div class="'modal-' + status"}>
+  <div class="'modal-' + status">
     <div class="modal" >
       <button class="close-btn"  @click="handleModalFade"><i class="fa fa-close"/></button>
       <div class="modal-header">
@@ -36,10 +36,10 @@ export default {
     }
   },
   methods: {
-    handleModalFade(){
+    handleModalFade () {
       this.status = 'fade'
     },
-    handleModalShow(){
+    handleModalShow () {
       this.status = 'show'
     }
   }

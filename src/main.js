@@ -7,4 +7,12 @@ import store from './store'
 //   router:router,
 //   render:h=>h(App)
 // })
-export const vue = createApp(App).use(store).use(router).mount('#app')
+const createElm = function () {
+  const elm = document.createElement('div')
+  elm.id = 'app'
+  document.body.appendChild(elm)
+  return elm
+}
+export const vue = createApp(App).use(store).use(router).mount(createElm())
+
+console.log(vue.$el)

@@ -1,4 +1,4 @@
-import { createApp, crea } from 'vue'
+import { createApp } from 'vue'
 import Message from './Message'
 let messageVue
 
