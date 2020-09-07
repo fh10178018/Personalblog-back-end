@@ -13,6 +13,7 @@ const createElm = function () {
   document.body.appendChild(elm)
   return elm
 }
+
 export const vue = createApp(App).use(store).use(router).mount(createElm())
 
 console.log(vue.$el)

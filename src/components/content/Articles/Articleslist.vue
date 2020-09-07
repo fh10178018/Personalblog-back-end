@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import ArticleBox from './ArticleBox/ArticleBox'
+import ArticleBox from './ArticleBox'
 import Button from '../../common/Button/Button'
 import Modal from '../../common/Modal/Modal'
 export default {

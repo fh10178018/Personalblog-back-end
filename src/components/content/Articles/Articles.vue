@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Articleslist from '../../Articles/ArticlesList/Articleslist'
+import Articleslist from './Articleslist'
 import ArticlesHeader from './ArticlesHeader'
 export default {
   name: 'Articles',

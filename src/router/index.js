@@ -4,10 +4,12 @@ const Home = () => import('@/views/functional_page/Home/Home.vue')
 const Layout = () => import('@/views/functional_page/Layout.vue')
 const Login = () => import('@/views/login_page/Login.vue')
 const WebCodeEdit = () => import('@/views/edit_page/WebCodeEdit.vue')
-const Articles = () => import('@/components/content/Articles/Articles.vue')
+const Articles = () => import('../components/content/Articles/Articles.vue')
 const ArticleEdit = () => import('@/views/edit_page/ArticleEdit.vue')
 const Content = () => import('@/views/functional_page/Content/Content.vue')
 const DirectionEdit = () => import('@/views/edit_page/DirectionEdit.vue')
+const Documents = () => import('../components/content/Documents/Documents.vue')
+const Document = () => import('../components/content/Documents/Document.vue')
 
 const routes = [
   {
@@ -67,6 +69,30 @@ const routes = [
         ],
         meta: {
           title: '内容页面'
+        }
+      },
+      {
+        path: 'docs',
+        name: 'Docs',
+        component: Documents,
+        children: [
+          {
+            path: '',
+            redirect: to => {
+              to.params.docsId = '0'
+              return '/power/docs/0'
+            }
+          },
+          {
+            path: ':docsId',
+            component: Document,
+            meta: {
+              title: '组件属性页面'
+            }
+          }
+        ],
+        meta: {
+          title: '组件属性页面'
         }
       }
     ]

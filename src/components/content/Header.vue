@@ -9,6 +9,10 @@
         <template v-slot:item-icon><i class="fa fa-address-book" ></i></template>
         <template v-slot:item-text>博客内容</template>
       </navbar-item>
+      <navbar-item href="/power/docs">
+        <template v-slot:item-icon><i class="fa fa-address-book" ></i></template>
+        <template v-slot:item-text>组件相关文档</template>
+      </navbar-item>
     </navbar>
   </header>
 </template>

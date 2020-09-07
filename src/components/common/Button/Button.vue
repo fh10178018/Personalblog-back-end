@@ -1,24 +1,34 @@
 <template>
-  <div class="btn" :class="'btn-'+border+' btn-'+size+' btn-'+color" :style="style" :disabled="buttonDisabled">
-    <slot></slot>
-  </div>
+  <button class="btn" :class="btnClass" :style="style" :disabled="buttonDisabled">
+    <threedot-loading  v-if="loading"></threedot-loading>
+    <slot v-else></slot>
+  </button>
 </template>
 
 <script>
+import ThreedotLoading from 'components/common/Loading/ThreedotLoding'
 export default {
   name: 'Button',
   props: {
-    size: {
-      type: String,
-      default: 'lg'
-    },
-    border: {
+    type: {
       type: String,
       default: 'default'
     },
-    color: {
+    size: {
       type: String,
-      default: 'primary'
+      default: 'normal'
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    round: {
+      type: Boolean,
+      default: false
+    },
+    circle: {
+      type: Boolean,
+      default: false
     },
     style: {
       type: String,
@@ -29,9 +39,22 @@ export default {
       default: false
     }
   },
+  components: { ThreedotLoading },
   computed: {
+    btnClass () {
+      return [
+        'btn-' + this.type,
+        'btn-' + this.size,
+        this.loading ? 'is-loading' : '',
+        this.round && !this.circle ? 'btn-round' : '',
+        !this.round && this.circle ? 'btn-circle' : ''
+      ]
+    },
     buttonDisabled () {
-      return this.disabled
+      if (this.loading || this.disabled) {
+        return true
+      }
+      return false
     }
   }
 }
@@ -44,12 +67,12 @@ export default {
     cursor: pointer;
     user-select:none;
    }
-  .btn-primary{
+  .btn-default{
     color: var(--main-font-color);
     background-color: var(--light-color);
     transition: 500ms;
   }
-  .btn-primary:hover{
+  .btn-default:hover{
     color: var(--main-color);
     background-color: var(--theme-color);
   }
@@ -58,49 +81,53 @@ export default {
     background-color: var(--theme-color);
     transition: 500ms;
   }
-  .btn-success[disabled="true"]{
-    color: var(--theme-color) !important;
-    background-color: var(--lighter-color) !important;
-    border: 1px solid var(--theme-color);
-    transition: 500ms;
-  }
-  .btn-error[disabled="true"]{
-    color: var(--error-color) !important;
-    background-color: var(--lighter-error-color) !important;
-    border: 1px solid var(--error-color);
-    transition: 500ms;
-  }
   .btn-theme:hover{
     color: white;
     background-color: var(--theme-color);
     opacity: 0.8;
   }
-  .btn-default{
-    border-radius: 3px;
+  .btn-success[disabled]{
+    color: var(--theme-color) !important;
+    background-color: var(--lighter-color) !important;
+    border: 1px solid var(--theme-color);
+    transition: 500ms;
   }
-  .btn-lg{
+  .btn-error[disabled]{
+    color: var(--error-color) !important;
+    background-color: var(--lighter-error-color) !important;
+    border: 1px solid var(--error-color);
+    transition: 500ms;
+  }
+  .btn-large{
     padding: 10px 16px;
     font-size: 18px;
+    border-radius: 8px;
     line-height: 1.3333333;
-    border-radius: 6px;
   }
-  .btn-sm{
+  .btn-normal{
     padding: 5px 10px;
-    font-size: 12px;
-    line-height: 1.5;
+    font-size: 14px;
+    border-radius: 4px;
+    line-height: 1;
   }
-  .btn-xs{
-    padding: 1px 5px;
+  .btn-small{
+    padding: 7px 15px;
     font-size: 12px;
-    line-height: 1.5;
+    border-radius: 4px;
+    line-height: 1;
   }
-  .btn[disabled="true"] {
+  .btn[disabled] {
     color: white;
     pointer-events: none;
     background: var(--light-color);
   }
   .btn-round{
     border-radius: 200px;
+    padding: 12px 23px;
+  }
+  .btn-circle{
+    border-radius: 50%;
+    padding: 12px;
   }
   .btn:focus{
     outline: 0;

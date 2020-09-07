@@ -1,5 +1,5 @@
 <template>
-  <div class="articles-navbar">
+  <div class="secondary-navbar">
     <div class="bg"></div>
     <div class="input-search">
       <Search></Search>
@@ -13,15 +13,16 @@
 <script>
 import Search from '../Search/Search'
 export default {
-  name: 'ArticlesNavbar',
+  name: 'SecondaryNavbar',
   components: { Search }
 }
 </script>
 
 <style lang="less">
-  .articles-navbar{
+  .secondary-navbar{
     width: 200px;
     height: 100%;
+    float: left;
     .bg{
       position: fixed;
       width: 200px;
@@ -39,7 +40,7 @@ export default {
     }
   }
   @media screen and (max-width: 1300px){
-    .articles-navbar{
+    .secondary-navbar{
       .bg{
         height: calc(100vh - 70px);
       }

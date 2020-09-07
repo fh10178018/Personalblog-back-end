@@ -1,5 +1,5 @@
 <template>
-    <form class="login-wraper">
+    <div class="login-wraper">
       <div class="box">
         <div class="title">个人博客后端登陆</div>
         <StringInput
@@ -29,27 +29,24 @@
           />
         </transition>
         <div class="btn-login">
-          <Button size="lg" border="round" color="theme" :style="{width: '100%'}" :disabled="buttonDisabled" @click="login">
-            <threedot-loading v-if="isLoading"></threedot-loading>
-            <span v-else>登陆</span>
+          <Button size="large" :loading="isLoading" round type="theme" :style="{width: '100%'}" :disabled="buttonDisabled" @click="login">
+            <span>登陆</span>
           </Button>
         </div>
       </div>
-    </form>
+    </div>
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { mapActions } from 'vuex'
 import StringInput from 'components/common/Input/StringInput'
 import Button from 'components/common/Button/Button'
 import Verify from 'components/common/Verify/Verify'
-import { post } from 'http/index'
-import ThreedotLoading from '../../components/common/Loading/ThreedotLoding'
 export default {
   name: 'Login',
-  components: { ThreedotLoading, Verify, Button, StringInput },
+  components: { Verify, Button, StringInput },
   methods: {
-    ...mapMutations(['LOGIN']),
+    ...mapActions(['LoginAction']),
     handleVerifyOk () {
       this.isVerify = true
     },
@@ -69,12 +66,11 @@ export default {
     login () {
       this.isLoading = true
       const that = this
-      post('/user/login', this.loginData).then(res => {
+      this.LoginAction(this.loginData).then(() => {
         that.isLoading = false
-        that.LOGIN({ Authorization: 'Bearer ' + res })
         that.$router.push({ path: '/power' })
       }).catch(() => {
-        this.isLoading = false
+        that.isLoading = false
         this.reset()
       })
     }

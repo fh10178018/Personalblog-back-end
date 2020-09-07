@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import Tag from '../../../common/Tag/Tag'
+import Tag from '../../common/Tag/Tag'
 export default {
   name: 'ArticleBox',
   components: { Tag }

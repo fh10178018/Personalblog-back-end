@@ -13,7 +13,7 @@
 <script>
 import Tooltip from '../Tooltip/Tooltip'
 export default {
-  name: 'ArticlesNavbarItem',
+  name: 'SecondaryNavbarItem',
   data () {
     return {
       right: 'right'

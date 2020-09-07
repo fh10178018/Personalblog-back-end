@@ -1,9 +1,9 @@
 <template>
   <div class="verify-wrap">
-    <Button v-if="res!=='success'&&res!=='error'" size="lg" border="round" color="theme" :style="{width: '100%'}" :disabled="buttonDisabled" @click="handleVerify">
+    <Button v-if="res!=='success'&&res!=='error'" size="large" round type="theme" :style="{width: '100%'}" :disabled="buttonDisabled" @click="handleVerify">
       请完成验证
     </Button>
-    <Button v-else size="lg" border="round" :color="res" disabled="true" :style="{width: '100%'}">
+    <Button v-else size="large" round :type="res" disabled :style="{width: '100%'}">
       <div v-if="res==='success'"><i class="fa fa-check m-r-1"></i>验证成功</div>
       <div v-else><i class="fa fa-times m-r-1"></i>验证失败</div>
     </Button>

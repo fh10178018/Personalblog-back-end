@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 let id = 0
-//创建element
-const createElm = function() {
+// 创建element
+const createElm = function () {
   const elm = document.createElement('div')
   elm.id = 'app' + ++id
   document.body.appendChild(elm)
@@ -12,7 +12,7 @@ const createElm = function() {
  * 回收 vm
  * @param  {Object} vm
  */
-export const destroyVM = function(vm) {
+export const destroyVM = function (vm) {
   vm.$el &&
   vm.$el.parentNode &&
   vm.$el.parentNode.removeChild(vm.$el)
@@ -24,7 +24,7 @@ export const destroyVM = function(vm) {
  * @param  {Boolean=false} mounted 是否添加到 DOM 上
  * @return {Object} vm
  */
-export const createVue = function(Compo, mounted = false) {
+export const createVue = function (Compo, mounted = false) {
   // Object.prototype.toString.call(obj) === "[object Array]"判断是否为数组
   // Object.prototype用来创建一个对象原型
   // toString对象返回字符串表示
@@ -42,15 +42,15 @@ export const createVue = function(Compo, mounted = false) {
  * @param  {Boolean=false} mounted  - 是否添加到 DOM 上
  * @return {Object} vm
  */
-export const createTest = function(Compo, propsData = {}, mounted = false) {
+export const createTest = function (Compo, propsData = {}, mounted = false) {
   // 判断propsData是否为Boolean型，是的话，转为空对象
   if (propsData === true || propsData === false) {
     mounted = propsData
     propsData = {}
   }
-  //创建空Vue实例对象
+  // 创建空Vue实例对象
   const elm = createElm()
-  return createApp(Compo, { propsData }).mount(mounted === false ? null : elm)
+  return createApp(Compo, propsData).mount(mounted === false ? null : elm)
 }
 
 /**
@@ -60,7 +60,7 @@ export const createTest = function(Compo, propsData = {}, mounted = false) {
  * @param  {String} name
  * @param  {*} opts
  */
-export const triggerEvent = function(elm, name, ...opts) {
+export const triggerEvent = function (elm, name, ...opts) {
   let eventName
   // RegExpObject.test(string)
   // 如果字符串 string 中含有与 RegExpObject 匹配的文本，则返回 true，否则返回 false
@@ -89,7 +89,7 @@ export const triggerEvent = function(elm, name, ...opts) {
  * @param {Element} elm
  * @param {*} opts
  */
-export const triggerClick = function(elm, ...opts) {
+export const triggerClick = function (elm, ...opts) {
   triggerEvent(elm, 'mousedown', ...opts)
   triggerEvent(elm, 'mouseup', ...opts)
 
@@ -101,7 +101,7 @@ export const triggerClick = function(elm, ...opts) {
  * @param {Element} elm
  * @param {keyCode} keyCode
  */
-export const triggerKeyDown = function(elm, keyCode) {
+export const triggerKeyDown = function (elm, keyCode) {
   const evt = document.createEvent('Events')
   evt.initEvent('keydown', true, true)
   evt.keyCode = keyCode
@@ -113,7 +113,7 @@ export const triggerKeyDown = function(elm, keyCode) {
  * @param {Number} ms
  * 暂时不清楚确切用处
  */
-export const wait = function(ms = 50) {
+export const wait = function (ms = 50) {
   return new Promise(resolve => setTimeout(() => resolve(), ms))
 }
 
