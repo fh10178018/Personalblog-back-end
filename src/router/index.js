@@ -5,8 +5,8 @@ const Layout = () => import('@/views/functional_page/Layout.vue')
 const Login = () => import('@/views/login_page/Login.vue')
 const WebCodeEdit = () => import('@/views/edit_page/WebCodeEdit.vue')
 const Articles = () => import('../components/content/Articles/Articles.vue')
+const Articleslist = () => import('../components/content/Articles/Articleslist.vue')
 const ArticleEdit = () => import('@/views/edit_page/ArticleEdit.vue')
-const Content = () => import('@/views/functional_page/Content/Content.vue')
 const DirectionEdit = () => import('@/views/edit_page/DirectionEdit.vue')
 const Documents = () => import('../components/content/Documents/Documents.vue')
 const Document = () => import('../components/content/Documents/Document.vue')
@@ -50,7 +50,7 @@ const routes = [
       {
         path: 'content',
         name: 'Content',
-        component: Content,
+        component: Articles,
         children: [
           {
             path: '',
@@ -61,7 +61,7 @@ const routes = [
           },
           {
             path: ':sortname',
-            component: Articles,
+            component: Articleslist,
             meta: {
               title: '内容页面'
             }

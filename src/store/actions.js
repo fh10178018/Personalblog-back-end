@@ -2,9 +2,7 @@ import { post } from 'http/index'
 
 const actions = {
   LoginAction (context, loginData) {
-    return post('/user/login', loginData).then(res => {
-      context.LOGIN({ Authorization: 'Bearer ' + res })
-    })
+    return post('/user/login', loginData)
   },
   LogoutAction (context, loginData) {
   }

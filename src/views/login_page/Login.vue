@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapMutations } from 'vuex'
 import StringInput from 'components/common/Input/StringInput'
 import Button from 'components/common/Button/Button'
 import Verify from 'components/common/Verify/Verify'
@@ -47,6 +47,7 @@ export default {
   components: { Verify, Button, StringInput },
   methods: {
     ...mapActions(['LoginAction']),
+    ...mapMutations(['LOGIN']),
     handleVerifyOk () {
       this.isVerify = true
     },
@@ -65,12 +66,12 @@ export default {
     },
     login () {
       this.isLoading = true
-      const that = this
-      this.LoginAction(this.loginData).then(() => {
-        that.isLoading = false
-        that.$router.push({ path: '/power' })
+      this.LoginAction(this.loginData).then(res => {
+        this.isLoading = false
+        this.LOGIN({ Authorization: 'Bearer ' + res })
+        this.$router.push({ path: '/power' })
       }).catch(() => {
-        that.isLoading = false
+        this.isLoading = false
         this.reset()
       })
     }

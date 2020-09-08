@@ -22,7 +22,8 @@ export default {
   .secondary-navbar{
     width: 200px;
     height: 100%;
-    float: left;
+    overflow-y: auto;
+    overflow-x: hidden;
     .bg{
       position: fixed;
       width: 200px;

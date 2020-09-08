@@ -1,25 +1,18 @@
 <template>
-  <div v-html="getDocs" class="markdown"></div>
+  <div v-html="getDocs" class="markdown" v-highlight></div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import 'highlight.js/styles/shades-of-purple.css'
 export default {
   name: 'Document',
-  props: {
-    docs: {
-      type: Array,
-      default: null,
-      require: true
-    }
-  },
   computed: {
+    ...mapState({ allDocs: state => state.componentsDocs.allDocs }),
     getDocs () {
       const id = this.$route.params.docsId * 1
-      return this.docs[id].docs
+      return this.allDocs[id].docs
     }
-  },
-  mounted () {
-    console.log(this.docs[0])
   }
 }
 </script>
@@ -29,6 +22,8 @@ export default {
     background-color: var(--main-color);
     overflow-y: auto;
     overflow-x: hidden;
-    height: 100%;
+    flex: 1;
+    margin: 5px;
+    padding: 5px 15px;
   }
 </style>

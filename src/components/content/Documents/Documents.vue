@@ -1,29 +1,25 @@
 <template>
-  <div class="content">
-    <div class="documents-wrapper">
-      <DocumentsHeader :docs="allDocs"></DocumentsHeader>
-      <router-view v-slot="{ Component }">
-        <component  :docs="allDocs" :is="Component"></component>
-      </router-view>
-    </div>
+  <div class="documents-wrapper">
+    <DocumentsHeader ></DocumentsHeader>
+    <router-view v-slot="{ Component }">
+      <component :is="Component"></component>
+    </router-view>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
 import DocumentsHeader from './DocumentsHeader'
 export default {
   name: 'Documents',
-  components: { DocumentsHeader },
-  computed: {
-    ...mapState({ allDocs: state => state.componentsDocs.allDocs })
-  }
+  components: { DocumentsHeader }
 }
 </script>
 
 <style lang="less">
   .documents-wrapper{
+    grid-area: page;
     height: 100%;
+    display: flex;
   }
   .content{
     grid-area: page;

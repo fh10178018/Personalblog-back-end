@@ -1,24 +1,26 @@
 <template>
-  <div class="articles-wrapper">
-    <ArticlesHeader></ArticlesHeader>
-    <Articleslist></Articleslist>
+  <div class="content">
+    <div class="articles-wrapper">
+      <ArticlesHeader></ArticlesHeader>
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script>
-import Articleslist from './Articleslist'
 import ArticlesHeader from './ArticlesHeader'
 export default {
   name: 'Articles',
-  components: { ArticlesHeader, Articleslist }
+  components: { ArticlesHeader }
 }
 </script>
 
 <style lang="less">
   .articles-wrapper{
-    margin: 0 auto;
     height: 100%;
-    display: grid;
-    grid-template-columns: 200px auto;
+  }
+  .content{
+    grid-area: page;
+    height: 100%;
   }
 </style>

@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import hljs from 'highlight.js'
 // new Vue({
 //   el:"#app",
 //   router:router,
@@ -14,6 +15,14 @@ const createElm = function () {
   return elm
 }
 
-export const vue = createApp(App).use(store).use(router).mount(createElm())
-
-console.log(vue.$el)
+export const vue = createApp(App)
+  .use(store)
+  .use(hljs)
+  .use(router)
+  .directive('highlight', (el) => {
+    const blocks = el.querySelectorAll('pre code')
+    blocks.forEach((block) => {
+      hljs.highlightBlock(block)
+    })
+  })
+  .mount(createElm())
