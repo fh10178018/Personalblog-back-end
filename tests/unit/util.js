@@ -1,4 +1,7 @@
 import { createApp } from 'vue'
+// 定义全局组件
+import common from '../../src/components/common'
+
 let id = 0
 // 创建element
 const createElm = function () {
@@ -31,7 +34,7 @@ export const createVue = function (Compo, mounted = false) {
   if (Object.prototype.toString.call(Compo) === '[object String]') {
     Compo = { template: Compo }
   }
-  return createApp(Compo).mount(mounted === false ? null : createElm())
+  return createApp(Compo).use(common).mount(mounted === false ? null : createElm())
 }
 
 /**
@@ -92,7 +95,6 @@ export const triggerEvent = function (elm, name, ...opts) {
 export const triggerClick = function (elm, ...opts) {
   triggerEvent(elm, 'mousedown', ...opts)
   triggerEvent(elm, 'mouseup', ...opts)
-
   return elm
 }
 
@@ -119,6 +121,9 @@ export const wait = function (ms = 50) {
 
 /**
  * 等待一个 Tick，代替 Vue.nextTick，返回 Promise
- * 暂时不清楚用处
+ * 涉及源码的认知，nexttick时Vue的回调，当dom改变后触发
+ * 有可能时在async异步函数进行 “vm.input = 'text'”,在其下添加一个await waitImmediate()
+ * 目的是为了等待上面的异步工序完成，也就是dom更新操作完事，也就是等待一个 Tick
+ * 详细暂时不清楚用处
  */
 export const waitImmediate = () => wait(0)

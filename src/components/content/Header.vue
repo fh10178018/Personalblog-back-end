@@ -11,7 +11,7 @@
       </navbar-item>
       <navbar-item href="/power/docs">
         <template v-slot:item-icon><i class="fa fa-address-book" ></i></template>
-        <template v-slot:item-text>组件相关文档</template>
+        <template v-slot:item-text>组件文档</template>
       </navbar-item>
     </navbar>
   </header>
@@ -38,7 +38,6 @@ header{
   box-shadow: 0 0 10px rgba(0,0,0,0.05), 1px 0 rgba(0,0,0,0.05);
 }
 @media screen and (max-width: 1300px) {
-  //当设备屏幕小于max-width的值时，则满足条件，且注意权限大小，要将样式放在后边
   header{
     padding: 0;
   }

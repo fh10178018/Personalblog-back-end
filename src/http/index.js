@@ -1,5 +1,5 @@
 import axios from 'axios'
-import showMessage from 'components/common/Message/index'
+import showMessage from 'components/common/Message'
 const that = this
 
 export const get = (url) => {

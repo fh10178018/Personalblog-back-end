@@ -2,25 +2,26 @@
     <div class="login-wraper">
       <div class="box">
         <div class="title">个人博客后端登陆</div>
-        <StringInput
-          name="账号"
+        <InputString
+          placeholder="账号"
           ref="usernameInput"
-          v-model:value="loginData.username"
+          v-model="loginData.username"
           :require="rules.username.require"
           :min="rules.username.min"
           :max="rules.username.max"
           :disabled="isVerify && isUsername && isPassword"
           @isok = "usernameIsOk"
+          clearable
           showClear />
-        <StringInput
-          name="密码"
+        <InputString
+          placeholder="密码"
           ref="passwordInput"
           type="password"
           :disabled="isVerify && isUsername && isPassword"
-          v-model:value="loginData.password"
+          v-model="loginData.password"
           @isok = "passwordIsOk"
           :require="rules.password.require"
-           />
+        />
         <transition name="unfold">
           <Verify
             v-if="isUsername && isPassword && DestroyVerify"
@@ -39,14 +40,14 @@
 
 <script>
 import { mapActions, mapMutations } from 'vuex'
-import StringInput from 'components/common/Input/StringInput'
+import InputString from 'components/common/InputString/InputString'
 import Button from 'components/common/Button/Button'
 import Verify from 'components/common/Verify/Verify'
 export default {
   name: 'Login',
-  components: { Verify, Button, StringInput },
+  components: { Verify, Button, InputString },
   methods: {
-    ...mapActions(['LoginAction']),
+    ...mapActions(['LoginAction', 'getUserInfo']),
     ...mapMutations(['LOGIN']),
     handleVerifyOk () {
       this.isVerify = true
@@ -68,6 +69,7 @@ export default {
       this.isLoading = true
       this.LoginAction(this.loginData).then(res => {
         this.isLoading = false
+        this.getUserInfo()
         this.LOGIN({ Authorization: 'Bearer ' + res })
         this.$router.push({ path: '/power' })
       }).catch(() => {

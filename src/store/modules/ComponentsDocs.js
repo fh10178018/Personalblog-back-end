@@ -4,6 +4,7 @@ const state = {
   allDocs: allComponentsDocs,
   id: 0
 }
+
 const mutations = {
   setDocsId (state, id) {
     state.id = id

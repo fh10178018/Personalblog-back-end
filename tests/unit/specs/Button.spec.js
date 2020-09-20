@@ -1,5 +1,4 @@
-import { mount } from '@vue/test-utils'
-import { CreateVue, destroyVM, createTest, createVue } from '../../util'
+import { CreateVue, destroyVM, createTest, createVue } from '../util'
 import Button from '@/components/common/Button/Button'
 // 创建测试用例，一个测试组件写一个测试套件
 describe('Button', () => {
@@ -19,17 +18,16 @@ describe('Button', () => {
   })
   it('[props] size', () => {
     vm = createTest(Button, {
-      size: 'sm'
+      size: 'small'
     }, true)
     let buttonElm = vm.$el
-    expect(buttonElm.classList.contains('btn-sm')).toBe(true)
+    expect(buttonElm.classList.contains('btn-small')).toBe(true)
   })
   it('[props] disabled', () => {
     vm = createTest(Button, {
-      disabled: false
+      disabled: true
     }, true)
     let buttonElm = vm.$el
-    console.log(buttonElm.getAttribute('disabled') !== null)
     expect(buttonElm.getAttribute('disabled') === '').toBe(true)
   })
   it('[props] loading', () => {
@@ -67,12 +65,12 @@ describe('Button', () => {
         handleClick(evt) {
           result = evt
         }
-      }
+      },
     }, true)
     vm.$el.click()
     setTimeout(() => {
-      // isTrusted属性为true时，为用户鼠标点击触发，否则为
-      expect(result.isTrusted).toBe(true)
+      // isTrusted属性为true时，为用户鼠标点击触发，否则为脚本触发，也就是测试触发
+      expect(result.isTrusted).toBe(false)
       done()
     }, 20)
   })

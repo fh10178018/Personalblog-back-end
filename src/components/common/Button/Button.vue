@@ -1,12 +1,14 @@
 <template>
-  <button class="btn" :class="btnClass" :style="style" :disabled="buttonDisabled">
+  <button class="btn" :class="btnClass" :style="useStyle" :disabled="buttonDisabled">
     <threedot-loading  v-if="loading"></threedot-loading>
     <slot v-else></slot>
   </button>
 </template>
 
 <script>
-import ThreedotLoading from 'components/common/Loading/ThreedotLoding'
+import { computed, inject, toRefs, unref } from 'vue'
+import ThreedotLoading from '../../common/Loading/ThreedotLoding'
+
 export default {
   name: 'Button',
   props: {
@@ -31,8 +33,10 @@ export default {
       default: false
     },
     style: {
-      type: String,
-      default: ''
+      type: Object,
+      default () {
+        return {}
+      }
     },
     disabled: {
       type: Boolean,
@@ -40,23 +44,38 @@ export default {
     }
   },
   components: { ThreedotLoading },
-  computed: {
-    btnClass () {
-      return [
-        'btn-' + this.type,
-        'btn-' + this.size,
-        this.loading ? 'is-loading' : '',
-        this.round && !this.circle ? 'btn-round' : '',
-        !this.round && this.circle ? 'btn-circle' : ''
-      ]
-    },
-    buttonDisabled () {
-      if (this.loading || this.disabled) {
-        return true
-      }
-      return false
+  setup (props) {
+    const { disabled, size, round, type, loading, circle, style } = toRefs(props)
+    const buttonDisabled = useButtonDisabled(disabled, loading)
+    const useStyle = style.value
+    const btnClass = useBtnClass(size, round, type, circle, loading)
+    return {
+      btnClass,
+      buttonDisabled,
+      useStyle
     }
   }
+}
+const useBtnClass = (size, round, type, circle, loading) => {
+  const Form = inject('Form', {})
+  return computed(() => {
+    return [
+      'btn-' + type.value,
+      'btn-' + size.value,
+      loading.value || unref(Form.loading) ? 'is-loading' : '',
+      round.value && !circle.value ? 'btn-round' : '',
+      !round.value && circle.value ? 'btn-circle' : ''
+    ]
+  })
+}
+const useButtonDisabled = (disabled, loading) => {
+  const Form = inject('Form', {})
+  return computed(() => {
+    if (loading.value || disabled.value || unref(Form.disabled) || unref(Form.loading)) {
+      return true
+    }
+    return false
+  })
 }
 </script>
 
@@ -131,5 +150,8 @@ export default {
   }
   .btn:focus{
     outline: 0;
+  }
+  .is-loading {
+    cursor: wait !important;
   }
 </style>

@@ -26,6 +26,12 @@ import SecondaryNavbar from '../../common/SecondaryNavbar/SecondaryNavbar'
 import SecondaryNavbarItem from '../../common/SecondaryNavbar/SecondaryNavbarItem'
 export default {
   name: 'ArticlesHeader',
-  components: { SecondaryNavbarItem, SecondaryNavbar }
+  components: { SecondaryNavbarItem, SecondaryNavbar },
+  props: {
+    isImg: {
+      type: Boolean,
+      default: true
+    }
+  }
 }
 </script>

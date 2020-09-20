@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import common from '../src/components/common'
 import store from './store'
 import hljs from 'highlight.js'
 // new Vue({
@@ -8,6 +9,7 @@ import hljs from 'highlight.js'
 //   router:router,
 //   render:h=>h(App)
 // })
+
 const createElm = function () {
   const elm = document.createElement('div')
   elm.id = 'app'
@@ -18,6 +20,7 @@ const createElm = function () {
 export const vue = createApp(App)
   .use(store)
   .use(hljs)
+  .use(common)
   .use(router)
   .directive('highlight', (el) => {
     const blocks = el.querySelectorAll('pre code')

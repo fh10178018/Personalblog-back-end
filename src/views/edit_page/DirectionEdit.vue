@@ -2,13 +2,13 @@
   <div class="direction-edit">
     <form>
       <NumberInput v-model:value="num" ></NumberInput>
-      <StringInput v-model:value="title" :name="'文章名称是什么？'"></StringInput>
+      <InputString v-model:value="title" :name="'文章名称是什么？'"></InputString>
     </form>
   </div>
 </template>
 
 <script>
-import StringInput from 'components/common/Input/StringInput'
+import InputString from 'components/common/InputString/InputString'
 import NumberInput from 'components/common/Input/NumberInput'
 export default {
   name: 'DirectionEdit',
@@ -23,7 +23,7 @@ export default {
       console.log(val)
     }
   },
-  components: { NumberInput, StringInput }
+  components: { NumberInput, InputString }
 }
 </script>
 

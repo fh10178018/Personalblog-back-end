@@ -1,9 +1,17 @@
-import { createApp } from 'vue'
 import Message from './Message'
+import { createApp } from 'vue'
+
 let messageVue
 
+const createElm = function () {
+  const elm = document.createElement('div')
+  elm.id = 'message'
+  document.body.appendChild(elm)
+  return elm
+}
+
 function createMessage () {
-  const vnode = createApp(Message).mount('#message')
+  const vnode = createApp(Message).mount(createElm())
   return vnode
 }
 export function showMessage (args, callback) {

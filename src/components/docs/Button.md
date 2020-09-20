@@ -5,7 +5,7 @@
 ### 基本用法
 
 #### 按钮类型
-支持 `default`、`primary`、'success'、`warn` 三种类型，默认为 `default`
+支持 `default`、`primary`、`success`、`warn` 三种类型，默认为 `default`
 
 ```html
 <Button type="default">默认按钮</Button>
@@ -21,18 +21,18 @@
 <Button size="small">小号按钮</Button>
 ```
 #### 禁用按钮
-通过 `disabled` Boolean属性来禁用按钮
+通过 `disabled` 来禁用按钮
 ```html
 <Button disabled>禁用按钮</Button>
 ```
 #### 加载按钮
-通过 `loading` Boolean属性来控制按钮是否定位也页面底部
+通过 `loading` 来控制按钮是否定位也页面底部
 ```html
 <Button loading>确定按钮</Button>
 <Button loading="true">确定按钮</Button>
 ```
 #### 按钮边框类型
-通过 `round`、`circle` Boolean属性来控制按钮是否定位也页面底部
+通过 `round`、`circle` 来控制按钮是否定位也页面底部
 ```html
 <Button round>圆角按钮</Button>
 <Button circle>圆形按钮，建议里面为方型元素</Button>
