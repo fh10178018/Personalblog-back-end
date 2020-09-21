@@ -9,6 +9,25 @@
 import { computed, inject, toRefs, unref } from 'vue'
 import ThreedotLoading from '../../common/Loading/ThreedotLoding'
 
+const useBtnClass = (size, round, type, circle, loading) => {
+  const Form = inject('Form', {})
+  return computed(() => {
+    return [
+      'btn-' + type.value,
+      'btn-' + size.value,
+      loading.value || unref(Form.loading) ? 'is-loading' : '',
+      round.value && !circle.value ? 'btn-round' : '',
+      !round.value && circle.value ? 'btn-circle' : ''
+    ]
+  })
+}
+const useButtonDisabled = (disabled, loading) => {
+  const Form = inject('Form', {})
+  return computed(() => {
+    return !!(loading.value || disabled.value || unref(Form.disabled) || unref(Form.loading));
+  })
+}
+
 export default {
   name: 'Button',
   props: {
@@ -55,27 +74,6 @@ export default {
       useStyle
     }
   }
-}
-const useBtnClass = (size, round, type, circle, loading) => {
-  const Form = inject('Form', {})
-  return computed(() => {
-    return [
-      'btn-' + type.value,
-      'btn-' + size.value,
-      loading.value || unref(Form.loading) ? 'is-loading' : '',
-      round.value && !circle.value ? 'btn-round' : '',
-      !round.value && circle.value ? 'btn-circle' : ''
-    ]
-  })
-}
-const useButtonDisabled = (disabled, loading) => {
-  const Form = inject('Form', {})
-  return computed(() => {
-    if (loading.value || disabled.value || unref(Form.disabled) || unref(Form.loading)) {
-      return true
-    }
-    return false
-  })
 }
 </script>
 
