@@ -24,7 +24,7 @@ const useBtnClass = (size, round, type, circle, loading) => {
 const useButtonDisabled = (disabled, loading) => {
   const Form = inject('Form', {})
   return computed(() => {
-    return !!(loading.value || disabled.value || unref(Form.disabled) || unref(Form.loading));
+    return !!(loading.value || disabled.value || unref(Form.disabled) || unref(Form.loading))
   })
 }
 
