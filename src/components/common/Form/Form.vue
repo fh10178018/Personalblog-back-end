@@ -52,11 +52,11 @@ const useValidate = (rules, model, fields) => {
       return
     }
 
-    return new Promise (resolve => {
+    return new Promise(resolve => {
       /*
       * 对当前所有form-item进行验证
       * */
-      let valid  = true // 默认通过
+      let valid = true // 默认通过
       let count = 0 // 来匹配是否检查完毕
       if (fields.length === 0 && callback) { // 如果验证为空立即返回true
         resolve(valid)
@@ -67,7 +67,7 @@ const useValidate = (rules, model, fields) => {
           if (error) { // 只要有一个错误，就是尚未同过
             valid = false
           }
-          if (++count === fileds.length) { // 通过所有form-item的检查才会调用
+          if (++count === fields.length) { // 通过所有form-item的检查才会调用
             resolve(valid) // 通过then方法获取valid
             if (typeof callback === 'function') {
               callback(valid) // 或者直接注入回调函数
@@ -84,10 +84,10 @@ const useValidate = (rules, model, fields) => {
 }
 
 export default {
-  name: "Form",
+  name: 'Form',
   props: {
-    model: object, // 当前form的model
-    rules: object, // 验证规则
+    model: Object, // Form的绑定数据对象
+    rules: Object // 验证规则
   },
   emits: ['validate'],
   setup (props, { emit }) {
