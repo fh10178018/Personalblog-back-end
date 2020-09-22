@@ -9,6 +9,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "async-validator": "^3.4.0",
     "axios": "^0.20.0",
     "codemirror": "^5.56.0",
     "core-js": "^3.6.5",
