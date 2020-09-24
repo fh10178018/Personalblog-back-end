@@ -130,7 +130,9 @@ export const useInteractive = (
   nativeInputValue,
   { modelValue },
   { focused, isComposing, passwordVisible, inputTimes },
-  emit
+  emit,
+  validateEvent,
+  instance
 ) => {
   const getInput = () => {
     return unref(input)
@@ -155,9 +157,11 @@ export const useInteractive = (
     emit('focus', event)
   }
   const handleBlur = (event) => { // input在失去焦点时触发
-    inputTimes.value++
     focused.value = false
     emit('blur', event)
+    if (unref(validateEvent)) {
+      instance.proxy.dispatch('FormItem', 'form-blur', [unref(modelValue)])
+    }
   }
   const handleInput = async (event) => { // 值发生变化，就会触发，改变父级绑定值
     // 在中文输入字符期间，不进行该事件，输入中文字符之后，再触发
@@ -231,4 +235,20 @@ export const useInteractive = (
     handleClear,
     handlePasswordVisible
   }
+}
+
+export const useValidate = () => { // 获取父亲的验证结果
+  const FormItem = inject('FormItem', '')
+  const validateResult = computed(() => {
+    return FormItem ? FormItem.validateResult : ''
+  })
+  const validateIcon = computed(() => {
+    return {
+      validating: 'fa-loading',
+      success: 'fa-check',
+      error: 'fa-close'
+    }[unref(validateResult)]
+  })
+
+  return { validateResult, validateIcon }
 }

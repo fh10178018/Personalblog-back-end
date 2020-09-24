@@ -63,10 +63,12 @@ import {
   onMounted,
   nextTick,
   watch,
+  getCurrentInstance,
   unref
 } from 'vue'
 import {
   useInput,
+  useValidate,
   useInteractive
 } from './use'
 
@@ -74,7 +76,9 @@ export default {
   name: 'InputString',
   emits: ['input', 'change', 'blur', 'clear', 'focus', 'update:modelValue'],
   setup (props, { emit, slots }) {
-    const { type, modelValue } = toRefs(props)
+    const { type, modelValue, validateEvent } = toRefs(props)
+    const { validateState, validateIcon } = useValidate()
+    const instance = getCurrentInstance()
     const state = reactive({
       focused: false,
       isComposing: false,
@@ -98,7 +102,8 @@ export default {
     } = useInput(
       slots,
       toRefs(props),
-      toRefs(state)
+      toRefs(state),
+      validateState
     )
     const {
       focus,
@@ -119,7 +124,9 @@ export default {
       nativeInputValue,
       toRefs(props),
       toRefs(state),
-      emit
+      emit,
+      validateEvent,
+      instance
     )
     watch(
       () => unref(type),
@@ -131,10 +138,13 @@ export default {
     )
     watch(
       () => unref(modelValue),
-      () => {
+      (val) => {
         nextTick(() => {
           setNativeInputValue()
         })
+        if (unref(validateEvent)) { // 传值验证
+          dispatch('FormItem', 'form-change', val)
+        }
       }
     )
     onMounted(() => {
@@ -144,6 +154,8 @@ export default {
     return {
       ...toRefs(props),
       ...toRefs(state),
+      validateState,
+      validateIcon,
       inputType,
       inputDisabled,
       nativeInputValue,
@@ -224,7 +236,11 @@ export default {
     clearable: {
       type: Boolean,
       default: false
-    }
+    },
+    validateEvent: { // 开启验证事件
+      type: Boolean,
+      default: true
+    },
   }
 }
 </script>

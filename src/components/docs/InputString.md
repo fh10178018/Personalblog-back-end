@@ -72,6 +72,7 @@
 | minlength  | 最小输入长度    | number   | — | — |
 | disabled  | 是否被禁用   | boolean   | — | `false` |
 | readonly  | 是否只读  | boolean   | — | `false` |
+| validateEvent  | 是否开启验证事件  | boolean   | — | `true` |
 | require  | 是否必填  | boolean   | — | `false` |
 | clearable  | 是否显示可清空图标，仅在`type='text'`   | boolean   | — | `true` |
 | showPassword  | 是否显示切换password，仅在`type='password'`   | boolean   | — | `true` |
