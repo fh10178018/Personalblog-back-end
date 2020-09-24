@@ -12,7 +12,7 @@ import { useEmitter } from '@/utils/emmiter'
 import { getPropByPath } from '../../../utils/getPropByPath'
 import { blankFunction } from '../../../utils/blankFunction'
 
-export const useDispatchFiled = props => {
+export const useDispatchFiled = props => { // 如果插入FormItem组件，且有rulesname，则通过item告诉Form，有验证组件传入，并在form中缓存
   const { dispatch } = useEmitter()
   const { ctx } = getCurrentInstance() // 获取当前组件实例中的参数
 
@@ -68,7 +68,7 @@ export const useFieldValue = (props, Form) => { // 获取该组件的绑定值
   onMounted(() => {
     if (props.rulesName) {
       initialValue.value = unref(fieldValue)
-      if (Array.isArray(initialValue.value)) { // 作用应该是将引用的数组，数据内容完整的拷贝进
+      if (Array.isArray(initialValue.value)) { // 作用应该是将引用的数组，数据内容完整的拷贝进，应为原数据不因该是引用方式，数组发生变化会导致最初的值也随之变化
         initialValue.value = initialValue.value.slice()
       }
     }
@@ -165,4 +165,60 @@ export const useValidate = (props, Form, getFilteredRule) => {
     clearValidate,
     resetField
   }
+}
+
+export const useValidateEvent = (props, validate, getRules, validateDisabled) => {
+  const { on, off } = useEmitter()
+
+  const onFieldBlur = () => { // blur时，经行验证
+    validate('blur')
+  }
+
+  const onFieldChange = () => { // change时，经行验证
+    if (unref(validateDisabled)) { //当验证禁止时，变为false，且不触发验证
+      validateDisabled.value = false
+      return
+    }
+
+    validate('change')
+  }
+
+  const addValidateEvents = () => {
+    const rules = getRules()
+
+    if (rules.length || props.required !== undefined) {
+      on('form-blur', onFieldBlur) // 监听触发
+      on('form-change', onFieldChange) // 监听触发
+    }
+  }
+
+  onMounted(() => {
+    if (props.rulesName) { //渲染结束，即添加事件监听
+      addValidateEvents()
+    }
+  })
+
+  return {
+    removeValidateEvents: off, // 关闭监听事件
+    addValidateEvents
+  }
+}
+
+export const useIsRequired = (getRules) => { // 获得规则中的required
+  return computed(() => {
+    const rules = getRules()
+    let isRequired = false
+
+    if (rules && rules.length) {
+      rules.every((rule) => {
+        if (rule.required) {
+          isRequired = true
+          return false
+        }
+        return true
+      })
+    }
+
+    return isRequired
+  })
 }

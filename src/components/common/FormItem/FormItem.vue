@@ -8,13 +8,17 @@
 import {
   unref,
   ref,
-  inject
+  inject,
+  reactive,
+  provide
 } from 'vue'
 import {
   useDispatchFiled,
   useRules,
   useFieldValue,
-  useValidate
+  useValidate,
+  useIsRequired,
+  useValidateEvent
 } from './use'
 
 export default {
@@ -29,9 +33,13 @@ export default {
   inject: ['Form'],
   setup (props) {
     const Form = inject('Form', {})
-    const FormItem = inject('FormItem')
     useDispatchFiled(props) // 渲染时将组件实例缓存到Form中，并在销毁时，删除该缓存
-    const { getRules, getFilteredRule } = useRules(props, Form)
+    const {
+      getRules,
+      getFilteredRule
+    } = useRules(props, Form)
+
+    const isRequired = useIsRequired(getRules)
 
     const {
       validateResult,
@@ -42,9 +50,32 @@ export default {
       resetField
     } = useValidate(props, Form, getFilteredRule, getRules)
 
+    const { removeValidateEvents, addValidateEvents } = useValidateEvent(
+      props,
+      validate,
+      getRules,
+      validateDisabled
+    )
+
+    provide(
+      'FormItem',
+      reactive({
+        name: 'FormItem',
+        validateResult
+      })
+    )
+
     return {
-      Form,
-      FormItem
+      validateResult,
+      validateMessage,
+      validateDisabled,
+      validate,
+      clearValidate,
+      resetField,
+      isRequired,
+      removeValidateEvents,
+      addValidateEvents,
+      Form
     }
   }
 }
