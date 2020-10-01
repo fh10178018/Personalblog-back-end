@@ -1,8 +1,6 @@
-import { destroyVM, waitImmediate, triggerEvent, createTest, createVue } from '../util'
+import { destroyVM, waitImmediate, createVue } from '../util'
 import { mount } from '@vue/test-utils';
-import mitt from 'mitt'
 import InputString from '../../../src/components/common/InputString'
-window.mitt = mitt()
 describe('Button', () => {
   let vm
   //测试用例后销毁
@@ -13,7 +11,6 @@ describe('Button', () => {
     vm = createVue({
       template: `
         <InputString
-           require
           :minlength="1"
           :maxlength="10"
           placeholder="请输入内容"
@@ -220,21 +217,5 @@ describe('Button', () => {
       expect(inputElm.element.selectionStart).toBe(0)
       expect(inputElm.element.selectionEnd).toBe(value.length)
     })
-  })
-
-  it('[verify] require', async () => {
-    let value = ''
-    const wrapper = mount({
-      render() {
-        return <InputString
-          v-model={value}
-          require/>
-      }
-    })
-    const inputElm = wrapper.find('input[type="text"]')
-    await inputElm.trigger('focus')
-    await inputElm.trigger('blur')
-    expect(wrapper.find('.error-label').exists()).toBe(true)
-    expect(inputElm.classes('error')).toBe(true)
   })
 })
