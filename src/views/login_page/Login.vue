@@ -2,26 +2,31 @@
     <div class="login-wraper">
       <div class="box">
         <div class="title">个人博客后端登陆</div>
-        <InputString
-          placeholder="账号"
-          ref="usernameInput"
-          v-model="loginData.username"
-          :require="rules.username.require"
-          :min="rules.username.min"
-          :max="rules.username.max"
-          :disabled="isVerify && isUsername && isPassword"
-          @isok = "usernameIsOk"
-          clearable
-          showClear />
-        <InputString
-          placeholder="密码"
-          ref="passwordInput"
-          type="password"
-          :disabled="isVerify && isUsername && isPassword"
-          v-model="loginData.password"
-          @isok = "passwordIsOk"
-          :require="rules.password.require"
-        />
+        <form :model="loginData" :rules="rules">
+          <form-item>
+            <InputString
+              placeholder="账号"
+              ref="usernameInput"
+              v-model="loginData.username"
+              :require="rules.username.require"
+              :min="rules.username.min"
+              :max="rules.username.max"
+              :disabled="isVerify && isUsername && isPassword"
+              @isok = "usernameIsOk"
+              clearable
+              showClear />
+          </form-item>
+          <form-item>
+            <InputString
+              placeholder="密码"
+              ref="passwordInput"
+              type="password"
+              :disabled="isVerify && isUsername && isPassword"
+              v-model="loginData.password"
+              @isok = "passwordIsOk"
+              :require="rules.password.require" />
+          </form-item>
+        </form>
         <transition name="unfold">
           <Verify
             v-if="isUsername && isPassword && DestroyVerify"
@@ -90,14 +95,13 @@ export default {
       isPassword: false,
       isLoading: false,
       rules: {
-        username: {
-          require: true,
-          min: 3,
-          max: 32
-        },
-        password: {
-          require: true
-        }
+        username: [
+          { require: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 3, max: 32, message: '长度为 3 到 32 个字符', trigger: 'blur' }
+        ],
+        password: [
+          { require: true, message: '请输入密码', trigger: 'blur' }
+        ]
       }
     }
   },
