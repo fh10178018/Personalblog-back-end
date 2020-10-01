@@ -1,12 +1,11 @@
-import { useEmitter } from '@/utils/emmiter'
 import {
   reactive,
-  unref
+  unref,
+  watch
 } from 'vue'
 
-export const useFileds = (model) => {
+export const useFileds = (model, on) => {
   const fields = reactive([]) // 用于存储form-item的实例
-  const { on } = useEmitter()
 
   on('form-item-add', filed => { // 存储当前实例
     if (filed) {
@@ -35,13 +34,13 @@ export const useFileds = (model) => {
 }
 
 export const useValidate = (rules, model, fields, validateOnRuleChange) => {
-  const clearValidate = (props = []) => { //清除验证，就可以根据rulesName经行清除
+  const clearValidate = (props = []) => { // 清除验证，就可以根据rulesName经行清除
     let clearFileds = ''
     if (props.length) {
       if (typeof props === 'string') {
-        clearFileds = fields.filter((field) => {props = field.rulesName}) // 参数是一个字符串，直接筛选出来
+        clearFileds = fields.filter((field) => { props = field.rulesName }) // 参数是一个字符串，直接筛选出来
       } else {
-        clearFileds = fields.filter(field => {props = props.includes(field.rulesName)}) // props参数是一个数组
+        clearFileds = fields.filter(field => { props = props.includes(field.rulesName) }) // props参数是一个数组
       }
     } else { // 无任何形参，默认为全部实例
       clearFileds = fields
@@ -67,7 +66,7 @@ export const useValidate = (rules, model, fields, validateOnRuleChange) => {
       })
       return promise
     }
-    let valid  = true
+    let valid = true
     let count = 0
     // 如果需要验证的fields为空，调用验证时立刻回调true值
     if (fields.length === 0 && callback) {
@@ -79,7 +78,7 @@ export const useValidate = (rules, model, fields, validateOnRuleChange) => {
         if (message) { // 如果存在错误信息，说明验证失败
           valid = false
         }
-        invalidFields = object.assign({}, invalidFields, field) // 暂未了解
+        invalidFields = Object.assign({}, invalidFields, field) // 暂未了解
         if (typeof callback === 'function' && ++count === fields.length) { // 全部验证完
           callback(valid, invalidFields)
         }

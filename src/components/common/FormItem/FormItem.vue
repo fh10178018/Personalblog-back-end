@@ -6,8 +6,6 @@
 
 <script>
 import {
-  unref,
-  ref,
   inject,
   reactive,
   provide
@@ -15,11 +13,11 @@ import {
 import {
   useDispatchFiled,
   useRules,
-  useFieldValue,
   useValidate,
   useIsRequired,
   useValidateEvent
 } from './use'
+import { useEmitter } from '../../../utils/emmiter'
 
 export default {
   name: 'FormItem',
@@ -32,8 +30,9 @@ export default {
   },
   inject: ['Form'],
   setup (props) {
+    const { dispatch, on, off } = useEmitter()
     const Form = inject('Form', {})
-    useDispatchFiled(props) // 渲染时将组件实例缓存到Form中，并在销毁时，删除该缓存
+    useDispatchFiled(props, dispatch) // 渲染时将组件实例缓存到Form中，并在销毁时，删除该缓存
     const {
       getRules,
       getFilteredRule
@@ -54,7 +53,9 @@ export default {
       props,
       validate,
       getRules,
-      validateDisabled
+      validateDisabled,
+      on,
+      off
     )
 
     provide(

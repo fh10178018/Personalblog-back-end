@@ -8,7 +8,6 @@
 import { useEmitter } from '@/utils/emmiter'
 import {
   reactive,
-  unref,
   toRefs,
   provide
 } from 'vue'
@@ -26,8 +25,9 @@ export default {
   },
   emits: ['validate'],
   setup (props, { emit }) {
+    const { on } = useEmitter()
     const { model, rules, validateOnRuleChange } = toRefs(props)
-    const { fields, resetFields } = useFileds(model)
+    const { fields, resetFields } = useFileds(model, on)
     const { validate, clearValidate } = useValidate(
       rules,
       model,

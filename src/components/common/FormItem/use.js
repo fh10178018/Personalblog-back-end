@@ -5,15 +5,13 @@ import {
   computed,
   unref,
   ref,
-  onBeforeUnmount,
+  onBeforeUnmount
 } from 'vue'
 import AsyncValidator from 'async-validator'
-import { useEmitter } from '@/utils/emmiter'
 import { getPropByPath } from '../../../utils/getPropByPath'
 import { blankFunction } from '../../../utils/blankFunction'
 
-export const useDispatchFiled = props => { // 如果插入FormItem组件，且有rulesname，则通过item告诉Form，有验证组件传入，并在form中缓存
-  const { dispatch } = useEmitter()
+export const useDispatchFiled = (props, dispatch) => { // 如果插入FormItem组件，且有rulesname，则通过item告诉Form，有验证组件传入，并在form中缓存
   const { ctx } = getCurrentInstance() // 获取当前组件实例中的参数
 
   onMounted(() => { // 组件渲染时， 将实例缓存在Form中
@@ -29,7 +27,7 @@ export const useDispatchFiled = props => { // 如果插入FormItem组件，且�
 
 export const useRules = (props, Form) => {
   const getRules = () => { // 从Form或者自身的规则获取当前的FormItem的验证规则
-    let formRules =  Form.rules // 获取父级的规则
+    const formRules = Form.rules // 获取父级的规则
     const selfRules = props.rules // 获取自身的prop的规则
     const requiredRule =
       props.required !== undefined ? { required: !!props.required } : [] // 复制当前FormItem规则是否需要被验证
@@ -47,7 +45,7 @@ export const useRules = (props, Form) => {
       } else {
         return rule.trigger === trigger
       }
-    }).map((rule) => object.assign({}, rule)) // 合并对象到对象中，{[..],[...]}
+    }).map((rule) => Object.assign({}, rule)) // 合并对象到对象中，{[..],[...]}
   }
 
   return {
@@ -167,15 +165,13 @@ export const useValidate = (props, Form, getFilteredRule) => {
   }
 }
 
-export const useValidateEvent = (props, validate, getRules, validateDisabled) => {
-  const { on, off } = useEmitter()
-
+export const useValidateEvent = (props, validate, getRules, validateDisabled, on, off) => {
   const onFieldBlur = () => { // blur时，经行验证
     validate('blur')
   }
 
   const onFieldChange = () => { // change时，经行验证
-    if (unref(validateDisabled)) { //当验证禁止时，变为false，且不触发验证
+    if (unref(validateDisabled)) { // 当验证禁止时，变为false，且不触发验证
       validateDisabled.value = false
       return
     }
@@ -193,7 +189,7 @@ export const useValidateEvent = (props, validate, getRules, validateDisabled) =>
   }
 
   onMounted(() => {
-    if (props.rulesName) { //渲染结束，即添加事件监听
+    if (props.rulesName) { // 渲染结束，即添加事件监听
       addValidateEvents()
     }
   })
