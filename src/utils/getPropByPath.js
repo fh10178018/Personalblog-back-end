@@ -4,7 +4,7 @@
 // var prop="aaa.bbb.ccc"
 // console.log(getValueByPath(obj, prop))
 
-export function getPropByPath(obj, path, strict) {
+export function getPropByPath (obj, path, strict) {
   let tempObj = obj
   path = path.replace(/\[(\w+)]/g, '.$1') // 将[0]转换为.0
   path = path.replace(/^\./, '') // 去除开头的.

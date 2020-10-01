@@ -5,6 +5,8 @@
 // 当执行vm.$once(event,fn)的时候，内部就是执行vm.$on，并且当回调函数执行一次后再通过vm.$off移除事件的回调，这样就确保了回调函数只执行一次。
 
 // getCurrentInstance获得当前组件的实例
+// getCurrentInstance必须放在setup函数的作用域中，放在自己函数中，会导致结果为null
+// 所以useEmitter()调用必须放在setup中
 import { getCurrentInstance } from 'vue'
 import { capitalize } from '../config/capitalize'
 
@@ -16,7 +18,8 @@ const EVENT_NAME_KEY = Symbol('ELEMENT_EVENTS')
 export function useEmitter (instance = getCurrentInstance()) {
   return {
     on: on(instance),
-    dispatch: dispatch(instance)
+    dispatch: dispatch(instance),
+    off: off(instance)
   }
 }
 
@@ -27,7 +30,6 @@ const on = instance => {
   return (originalEventName, callback) => {
     // 给监听的事件命名，以驼峰形式
     const eventName = 'on' + capitalize(originalEventName)
-
     // 该节点没有prop对象，添加一个空prop对象
     // 是否具有取决与你的组件是否用到prop对象
     if (!instance.vnode.props) {
@@ -57,8 +59,7 @@ const on = instance => {
   }
 }
 
-
-export const off = instance  => {
+const off = instance => {
   return (originalEventName, callback) => {
     // 获得on创建的事件数组对象
     const eventNameList =
