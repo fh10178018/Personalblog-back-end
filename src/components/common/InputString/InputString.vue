@@ -27,9 +27,9 @@
         <slot name="suffix"></slot>
         <i v-if="suffixIcon" class="fa" :class="suffixIcon"></i>
       </span>
-      <span v-if="showError"
+      <span v-if="showValidate"
             class="btn btn-error">
-        <i class="fa fa-warning"></i>
+        <i class="fa" :class="validateIcon"></i>
       </span>
       <!--@mousedown.prevent 非常重要，
       在做点击清除的时候会使focus变为blur
@@ -52,7 +52,6 @@
         {{ textLength }}/{{maxlength}}
       </span>
     </div>
-    <div class="error-label" v-if="showError">{{errorMsg}}</div>
   </div>
 </template>
 
@@ -63,38 +62,40 @@ import {
   onMounted,
   nextTick,
   watch,
-  getCurrentInstance,
   unref
 } from 'vue'
 import {
   useInput,
   useValidate,
+  useValidateIcon,
   useInteractive
 } from './use'
+import { useEmitter } from '../../../utils/emmiter'
 
 export default {
   name: 'InputString',
   emits: ['input', 'change', 'blur', 'clear', 'focus', 'update:modelValue'],
   setup (props, { emit, slots }) {
     const { type, modelValue, validateEvent } = toRefs(props)
-    const { validateState, validateIcon } = useValidate()
-    const instance = getCurrentInstance()
+    const { validateResult, validateIcon } = useValidate()
+    const { dispatch } = useEmitter()
+
     const state = reactive({
       focused: false,
       isComposing: false,
       passwordVisible: false,
       inputTimes: 0
     })
+    const { needValidateIcon } = useValidateIcon() // 父组件是否有Form表单
     const {
       input,
       inputType,
       inputDisabled,
       nativeInputValue,
       inputId,
-      showError,
-      errorMsg,
       textLength,
       showClearIcon,
+      showValidate,
       showWordLimitVisible,
       showPwdVisibleIcon,
       showClass,
@@ -103,8 +104,10 @@ export default {
       slots,
       toRefs(props),
       toRefs(state),
-      validateState
+      validateResult,
+      needValidateIcon
     )
+
     const {
       focus,
       blur,
@@ -126,7 +129,7 @@ export default {
       toRefs(state),
       emit,
       validateEvent,
-      instance
+      dispatch
     )
     watch(
       () => unref(type),
@@ -154,14 +157,12 @@ export default {
     return {
       ...toRefs(props),
       ...toRefs(state),
-      validateState,
+      showValidate,
       validateIcon,
       inputType,
       inputDisabled,
       nativeInputValue,
       inputId,
-      showError,
-      errorMsg,
       textLength,
       showClearIcon,
       showWordLimitVisible,
@@ -240,7 +241,7 @@ export default {
     validateEvent: { // 开启验证事件
       type: Boolean,
       default: true
-    },
+    }
   }
 }
 </script>
@@ -274,12 +275,6 @@ export default {
       .btn-error{
         color: var(--error-color) !important;
       }
-    }
-    .error-label{
-      position: absolute;
-      font-size: 12px;
-      top: 100%;
-      color: var(--error-color);
     }
     >label{
       position: absolute;

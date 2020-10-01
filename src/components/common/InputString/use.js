@@ -9,8 +9,10 @@ import {
 
 export const useInput = (
   slots,
-  { suffixIcon, size, showWordLimit, type, modelValue, readonly, clearable, maxlength, minlength, require, disabled },
-  { focused, passwordVisible, inputTimes }
+  { suffixIcon, size, showWordLimit, type, modelValue, readonly, clearable, maxlength, minlength, disabled },
+  { focused, passwordVisible, inputTimes },
+  validateResult,
+  needValidateIcon
 ) => {
   const input = ref(null)
   const Form = inject('Form', {})
@@ -25,6 +27,9 @@ export const useInput = (
         unref(Form.disabled) ? unref(Form.disabled) : false
       )
     )
+  })
+  const showValidate = computed(() => { // 是否出现错误,主要用于提示警告按钮
+    return (unref(validateResult) && unref(needValidateIcon))
   })
   const inputId = computed(() => {
     let Num = 'input_'
@@ -45,28 +50,11 @@ export const useInput = (
     }
     return (unref(modelValue) || '').length
   })
-  const showError = computed(() => { // 是否出现错误,主要用于提示必填字段，以及长度限制
-    if (!require) return false
-    return (
-      (unref(inputTimes) > 0) && (unref(textLength) < unref(minlength) || unref(textLength) > unref(maxlength))
-    )
-  })
-  const errorMsg = computed(() => {
-    if (unref(textLength) === 0) {
-      return name + '输入不能能为空！'
-    }
-    if (unref(textLength) < unref(minlength)) {
-      return name + '输入长度最小为' + unref(minlength)
-    }
-    if (unref(textLength) > unref(maxlength)) {
-      return name + '输入长度最大为' + unref(minlength)
-    }
-  })
   const showClearIcon = computed(() => {
     return (
       unref(clearable) &&
       !unref(showWordLimitVisible) &&
-      !unref(showError) &&
+      !unref(showValidate) &&
       !unref(inputDisabled) &&
       !unref(readonly) &&
       unref(nativeInputValue) &&
@@ -76,7 +64,7 @@ export const useInput = (
   const showWordLimitVisible = computed(() => {
     return (
       unref(showWordLimit) &&
-      unref(require) &&
+      !unref(showValidate) &&
       !unref(readonly) &&
       !unref(inputDisabled) &&
       !unref(showPwdVisibleIcon) &&
@@ -86,8 +74,8 @@ export const useInput = (
   const showPwdVisibleIcon = computed(() => {
     return (
       (unref(type) === 'password') &&
+      !unref(showValidate) &&
       !unref(showWordLimitVisible) &&
-      !unref(showError) &&
       !unref(inputDisabled) &&
       !unref(readonly) &&
       (!!unref(nativeInputValue) || unref(focused))
@@ -96,7 +84,7 @@ export const useInput = (
   const showClass = computed(() => {
     return [
       'input-' + unref(size),
-      unref(showError) ? 'error' : ''
+      unref(validateResult)
     ]
   })
   const showSuffixVisible = computed(() => {
@@ -106,7 +94,7 @@ export const useInput = (
       unref(showClearIcon) ||
       unref(showPwdVisibleIcon) ||
       unref(showWordLimitVisible) ||
-      unref(showError)
+      (showValidate)
     )
   })
 
@@ -115,9 +103,8 @@ export const useInput = (
     inputType,
     inputDisabled,
     nativeInputValue,
+    showValidate,
     inputId,
-    showError,
-    errorMsg,
     textLength,
     showClearIcon,
     showPwdVisibleIcon,
@@ -132,7 +119,7 @@ export const useInteractive = (
   { focused, isComposing, passwordVisible, inputTimes },
   emit,
   validateEvent,
-  instance
+  dispatch
 ) => {
   const getInput = () => {
     return unref(input)
@@ -160,7 +147,7 @@ export const useInteractive = (
     focused.value = false
     emit('blur', event)
     if (unref(validateEvent)) {
-      instance.proxy.dispatch('FormItem', 'form-blur', [unref(modelValue)])
+      dispatch('FormItem', 'form-blur', [unref(modelValue)])
     }
   }
   const handleInput = async (event) => { // 值发生变化，就会触发，改变父级绑定值
@@ -237,6 +224,10 @@ export const useInteractive = (
   }
 }
 
+/**
+ * 下面的函数对接From和FormItem用于验证
+* */
+
 export const useValidate = () => { // 获取父亲的验证结果
   const FormItem = inject('FormItem', '')
   const validateResult = computed(() => {
@@ -251,4 +242,16 @@ export const useValidate = () => { // 获取父亲的验证结果
   })
 
   return { validateResult, validateIcon }
+}
+
+export const useValidateIcon = () => {
+  const Form = inject('Form', {})
+
+  const needValidateIcon = computed(() => {
+    return !!unref(Form).statusIcon
+  })
+
+  return {
+    needValidateIcon
+  }
 }
