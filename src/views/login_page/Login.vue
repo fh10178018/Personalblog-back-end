@@ -2,31 +2,20 @@
     <div class="login-wraper">
       <div class="box">
         <div class="title">个人博客后端登陆</div>
-        <form :model="loginData" :rules="rules">
-          <form-item>
+        <Form :model="loginData" :rules="rules">
+          <FormItem rulesName="username">
             <InputString
               placeholder="账号"
-              ref="usernameInput"
               v-model="loginData.username"
-              :require="rules.username.require"
-              :min="rules.username.min"
-              :max="rules.username.max"
-              :disabled="isVerify && isUsername && isPassword"
-              @isok = "usernameIsOk"
-              clearable
-              showClear />
-          </form-item>
-          <form-item>
+              clearable/>
+          </FormItem>
+          <FormItem rulesName="password">
             <InputString
               placeholder="密码"
-              ref="passwordInput"
               type="password"
-              :disabled="isVerify && isUsername && isPassword"
-              v-model="loginData.password"
-              @isok = "passwordIsOk"
-              :require="rules.password.require" />
-          </form-item>
-        </form>
+              v-model="loginData.password"/>
+          </FormItem>
+        </Form>
         <transition name="unfold">
           <Verify
             v-if="isUsername && isPassword && DestroyVerify"
@@ -48,9 +37,10 @@ import { mapActions, mapMutations } from 'vuex'
 import InputString from 'components/common/InputString/InputString'
 import Button from 'components/common/Button/Button'
 import Verify from 'components/common/Verify/Verify'
+import FormItem from '../../components/common/FormItem/FormItem'
 export default {
   name: 'Login',
-  components: { Verify, Button, InputString },
+  components: { FormItem, Verify, Button, InputString },
   methods: {
     ...mapActions(['LoginAction', 'getUserInfo']),
     ...mapMutations(['LOGIN']),
@@ -96,11 +86,11 @@ export default {
       isLoading: false,
       rules: {
         username: [
-          { require: true, message: '请输入活动名称', trigger: 'blur' },
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
           { min: 3, max: 32, message: '长度为 3 到 32 个字符', trigger: 'blur' }
         ],
         password: [
-          { require: true, message: '请输入密码', trigger: 'blur' }
+          { required: true, message: '请输入密码', trigger: 'blur' }
         ]
       }
     }
