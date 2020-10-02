@@ -21,6 +21,11 @@ export const useInput = (
       unref(type) === 'password' ? (unref(passwordVisible) ? 'text' : 'password') : 'text'
     )
   })
+  const inputSize = computed(() => {
+    return (
+      unref(size) === 'normal' && !!unref(Form.size) ? unref(Form.size) : unref(size)
+    )
+  })
   const inputDisabled = computed(() => {
     return (
       unref(disabled) || (
@@ -29,7 +34,7 @@ export const useInput = (
     )
   })
   const showValidate = computed(() => { // 是否出现错误,主要用于提示警告按钮
-    return (unref(validateResult) && unref(needValidateIcon))
+    return (unref(validateResult) === 'error' && unref(needValidateIcon))
   })
   const inputId = computed(() => {
     let Num = 'input_'
@@ -53,8 +58,8 @@ export const useInput = (
   const showClearIcon = computed(() => {
     return (
       unref(clearable) &&
-      !unref(showWordLimitVisible) &&
       !unref(showValidate) &&
+      !unref(showWordLimitVisible) &&
       !unref(inputDisabled) &&
       !unref(readonly) &&
       unref(nativeInputValue) &&
@@ -63,8 +68,8 @@ export const useInput = (
   })
   const showWordLimitVisible = computed(() => {
     return (
-      unref(showWordLimit) &&
       !unref(showValidate) &&
+      unref(showWordLimit) &&
       !unref(readonly) &&
       !unref(inputDisabled) &&
       !unref(showPwdVisibleIcon) &&
@@ -73,8 +78,8 @@ export const useInput = (
   })
   const showPwdVisibleIcon = computed(() => {
     return (
-      (unref(type) === 'password') &&
       !unref(showValidate) &&
+      (unref(type) === 'password') &&
       !unref(showWordLimitVisible) &&
       !unref(inputDisabled) &&
       !unref(readonly) &&
@@ -83,7 +88,7 @@ export const useInput = (
   })
   const showClass = computed(() => {
     return [
-      'input-' + unref(size),
+      'input-' + unref(inputSize),
       unref(validateResult)
     ]
   })
@@ -233,22 +238,15 @@ export const useValidate = () => { // 获取父亲的验证结果
   const validateResult = computed(() => {
     return FormItem ? FormItem.validateResult : ''
   })
-  const validateIcon = computed(() => {
-    return {
-      validating: 'fa-loading',
-      success: 'fa-check',
-      error: 'fa-close'
-    }[unref(validateResult)]
-  })
 
-  return { validateResult, validateIcon }
+  return { validateResult }
 }
 
 export const useValidateIcon = () => {
   const Form = inject('Form', {})
 
   const needValidateIcon = computed(() => {
-    return !!unref(Form).statusIcon
+    return !!unref(Form)
   })
 
   return {

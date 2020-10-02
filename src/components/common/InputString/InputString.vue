@@ -1,26 +1,26 @@
 <template>
   <div class="form-group">
-    <input
-      class="form-control"
-      spellcheck="false"
-      :type="inputType"
-      :id="inputId"
-      :disabled="inputDisabled"
-      :readonly="readonly"
-      :class="showClass"
-      :autoComplete="autoComplete"
-      :minlength="minlength"
-      :maxlength="maxlength"
-      @compositionstart="handleCompositionStart"
-      @compositionupdate="handleCompositionUpdate"
-      @compositionend="handleCompositionEnd"
-      @input="handleInput"
-      @focus="handleFocus"
-      @blur="handleBlur"
-      @change="handleChange"
-      ref="input"
-      required
-    />
+      <input
+        class="form-control"
+        spellcheck="false"
+        :type="inputType"
+        :id="inputId"
+        :disabled="inputDisabled"
+        :readonly="readonly"
+        :class="showClass"
+        :autoComplete="autoComplete"
+        :minlength="minlength"
+        :maxlength="maxlength"
+        @compositionstart="handleCompositionStart"
+        @compositionupdate="handleCompositionUpdate"
+        @compositionend="handleCompositionEnd"
+        @input="handleInput"
+        @focus="handleFocus"
+        @blur="handleBlur"
+        @change="handleChange"
+        ref="input"
+        required
+      />
     <label v-if="placeholder" :for="inputId">{{placeholder}}</label>
     <div class="input-suffix" v-if="showSuffixVisible">
       <span class="btn btn-suffix" v-if="!showClearIcon || !showPwdVisibleIcon || !showWordLimitVisible">
@@ -28,8 +28,9 @@
         <i v-if="suffixIcon" class="fa" :class="suffixIcon"></i>
       </span>
       <span v-if="showValidate"
-            class="btn btn-error">
-        <i class="fa" :class="validateIcon"></i>
+            class="btn btn-error"
+      >
+        <i class="fa fa-warning"></i>
       </span>
       <!--@mousedown.prevent 非常重要，
       在做点击清除的时候会使focus变为blur
@@ -77,7 +78,7 @@ export default {
   emits: ['input', 'change', 'blur', 'clear', 'focus', 'update:modelValue'],
   setup (props, { emit, slots }) {
     const { type, modelValue, validateEvent } = toRefs(props)
-    const { validateResult, validateIcon } = useValidate()
+    const { validateResult } = useValidate()
     const { dispatch } = useEmitter()
 
     const state = reactive({
@@ -157,8 +158,8 @@ export default {
     return {
       ...toRefs(props),
       ...toRefs(state),
+      validateResult,
       showValidate,
-      validateIcon,
       inputType,
       inputDisabled,
       nativeInputValue,
@@ -248,20 +249,60 @@ export default {
 
 <style lang="less">
   .form-group{
-    margin-bottom: 40px;
     position: relative;
-    height: 40px;
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
+    .input-normal{
+      font-size: 14px;
+      height: 30px;
+      line-height: 30px;
+      +label{
+        line-height: 30px;
+        font-size: 14px;
+      }
+      +label+.input-suffix{
+        height: 30px;
+        line-height: 30px;
+        font-size: 14px;
+      }
+    }
+    .input-small{
+      font-size: 12px;
+      height: 28px;
+      line-height: 28px;
+      +label{
+        line-height: 28px;
+        font-size: 12px;
+      }
+      +label+.input-suffix{
+        height: 28px;
+        line-height: 28px;
+        font-size: 12px;
+      }
+    }
+    .input-large{
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 36px;
+      height: 36px;
+      +label{
+        line-height: 36px;
+        font-size: 16px;
+      }
+      +label+.input-suffix{
+        height: 36px;
+        line-height: 36px;
+        font-size: 16px;
+      }
+    }
     .input-suffix{
-      position: relative;
+      position: absolute;
+      z-index: 11;
+      right: 0;
       .btn{
-        position: absolute;
-        right: 0;
         margin: 0 5px;
-        transform: translateY(-60%);
         cursor: pointer;
         z-index: 11;
       }
@@ -275,12 +316,13 @@ export default {
       .btn-error{
         color: var(--error-color) !important;
       }
+      .btn-success {
+        color: var(--theme-color) !important;
+      }
     }
     >label{
       position: absolute;
       z-index: 11;
-      line-height: 36px;
-      font-size: 16px;
       font-weight: bold;
       color: var(--light-color);
       top: 0;
@@ -292,11 +334,8 @@ export default {
       z-index: 10;
       border: 2px solid;
       border-color: transparent transparent var(--light-color) transparent ;
-      line-height: 40px;
       height: 100%;
       transition: 500ms;
-      font-weight: 700;
-      font-size: 16px;
       width: 100%;
       color: var(--light-color);
       padding-right: 23px;
