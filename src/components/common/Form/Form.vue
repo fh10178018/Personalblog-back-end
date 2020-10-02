@@ -18,7 +18,15 @@ export default {
   props: {
     model: Object, // Form的绑定数据对象
     rules: Object, // 验证规则
+    size: {
+      type: String,
+      default: 'normal'
+    },
     validateOnRuleChange: { // 规则更改时验证，默认为true
+      type: Boolean,
+      default: true
+    },
+    showMessage: { // 是否显示错误信息,默认显示
       type: Boolean,
       default: true
     }
@@ -26,7 +34,7 @@ export default {
   emits: ['validate'],
   setup (props, { emit }) {
     const { on } = useEmitter()
-    const { model, rules, validateOnRuleChange } = toRefs(props)
+    const { model, rules, validateOnRuleChange, showMessage, size } = toRefs(props)
     const { fields, resetFields } = useFileds(model, on)
     const { validate, clearValidate } = useValidate(
       rules,
@@ -34,11 +42,12 @@ export default {
       fields,
       validateOnRuleChange
     )
-
     provide(
       'Form',
       reactive({
         name: 'Form',
+        size,
+        showMessage,
         model,
         rules,
         resetFields,
