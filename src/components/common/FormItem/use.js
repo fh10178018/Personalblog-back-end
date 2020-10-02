@@ -181,7 +181,6 @@ export const useValidateEvent = (props, validate, getRules, validateDisabled, on
 
   const addValidateEvents = () => {
     const rules = getRules()
-
     if (rules.length || props.required !== undefined) {
       on('form-blur', onFieldBlur) // 监听触发
       on('form-change', onFieldChange) // 监听触发
