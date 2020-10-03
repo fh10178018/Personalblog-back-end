@@ -38,9 +38,9 @@ export const useValidate = (rules, model, fields, validateOnRuleChange) => {
     let clearFileds = ''
     if (props.length) {
       if (typeof props === 'string') {
-        clearFileds = fields.filter((field) => { props = field.rulesName }) // 参数是一个字符串，直接筛选出来
+        clearFileds = fields.filter((field) => props === field.rulesName ) // 参数是一个字符串，直接筛选出来
       } else {
-        clearFileds = fields.filter(field => { props = props.includes(field.rulesName) }) // props参数是一个数组
+        clearFileds = fields.filter(field => props.includes(field.rulesName)) // props参数是一个数组
       }
     } else { // 无任何形参，默认为全部实例
       clearFileds = fields
@@ -56,7 +56,6 @@ export const useValidate = (rules, model, fields, validateOnRuleChange) => {
       )
       return
     }
-
     let promise
     if (typeof callback !== 'function') { // if不是callback,则是通过emit调用该函数，则此时 该 return promise
       promise = new window.Promise((resolve, reject) => {
@@ -64,7 +63,6 @@ export const useValidate = (rules, model, fields, validateOnRuleChange) => {
           valid ? resolve(valid) : reject(valid)
         }
       })
-      return promise
     }
     let valid = true
     let count = 0
@@ -84,6 +82,8 @@ export const useValidate = (rules, model, fields, validateOnRuleChange) => {
         }
       })
     })
+
+    return promise
   }
   watch(rules, () => { // 规则改变
     fields.forEach((field) => {

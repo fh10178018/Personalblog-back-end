@@ -17,7 +17,12 @@ export default {
   name: 'Form',
   props: {
     model: Object, // Form的绑定数据对象
-    rules: Object, // 验证规则
+    rules: { // 添加默认值，防止无规则时，监听出错
+      type: Object,
+      default: () => {
+        return {}
+      }
+    },
     size: {
       type: String,
       default: 'normal'
@@ -31,7 +36,7 @@ export default {
       default: true
     }
   },
-  emits: ['validate'],
+  emits: ['validate', 'FormItemAdd', 'FormItemRemove'],
   setup (props, { emit }) {
     const { on } = useEmitter()
     const { model, rules, validateOnRuleChange, showMessage, size } = toRefs(props)
@@ -58,6 +63,8 @@ export default {
     )
 
     return {
+      fields, // 实例组件用不到，但还是传递出去,在单元测试会用到
+      clearValidate,
       validate,
       resetFields
     }
