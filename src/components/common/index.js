@@ -3,12 +3,16 @@ import Button from './Button'
 import InputString from './InputString'
 import Form from './Form'
 import FormItem from './FormItem'
+import Verify from './Verify'
+import ButtonSlide from './ButtonSlide'
 
 const components = [
   Button,
   InputString,
   FormItem,
-  Form
+  Form,
+  Verify,
+  ButtonSlide
 ]
 
 const install = (app) => {
