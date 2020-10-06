@@ -37,7 +37,7 @@
 <script>
 import Button from '../Button/Button'
 import Modal from '../Modal/Modal'
-import SlideButton from '../Button/SlideButton'
+import SlideButton from '../ButtonSlide/ButtonSlide'
 import VerifyImg from './VerifyImg'
 export default {
   name: 'Verify',
