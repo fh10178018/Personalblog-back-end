@@ -1,7 +1,8 @@
 import {
   computed,
   unref,
-  ref
+  ref,
+  watch
 } from 'vue'
 
 /**
@@ -12,10 +13,23 @@ export const useSlider = (
   vertical,
   min,
   max,
-  step
+  step,
+  showStops,
+  type,
+  size
 ) => {
-  const value = ref(0)
+  const value = ref(null)
   const slider = ref(null)
+  const oldValue = ref(null)
+  const sliderSize = ref(0)
+
+  const rangeSize = computed(() => {
+    return unref(max) - unref(min)
+  })
+
+  const isVerifySlider = computed(() => {
+    return unref(type) === 'verify'
+  })
 
   const barSize = computed(() => {
     return `${(100 * (unref(value) - unref(min))) / (unref(max) - unref(min))}%`
@@ -45,21 +59,61 @@ export const useSlider = (
     return Math.max.apply(null, precision) // 在调用数组时，用到apply，Math.max.apply(null, ['1','2','3.1','3.2'])
   })
 
+  const markList = computed(() => {
+    if (!unref(showStops) || unref(isVerifySlider)) return []
+    if (unref(step) > unref(rangeSize) || unref(step)) return []
+    if (unref(isVerifySlider)) return [] // 验证不允许有过程点
+    if (typeof unref(step) === 'string') console.error('[Element Error][step]step type must be number')
+    const res = []
+    for (let i = unref(step); i < unref(rangeSize); i += unref(step)) {
+      res.push(`${(i / unref(rangeSize)) * 100}%`)
+    }
+    return res
+  })
+
+  const showClass = computed(() => {
+    return [
+      'slider',
+      unref(isVerifySlider) ? 'slider-verify' : 'slider-number',
+      `slider-${unref(size)}`
+    ]
+  })
+
+  const getStopStyle = val => {
+    return unref(vertical)
+      ? { bottom: unref(val) }
+      : { left: unref(val) }
+  }
+
   return {
     passStyle,
     slider,
+    precision,
     value,
-    precision
+    oldValue,
+    sliderSize,
+    markList,
+    getStopStyle,
+    showClass,
+    isVerifySlider
   }
 }
 export const useInteractive = (
   slider,
-  vertical
+  vertical,
+  min,
+  max,
+  value,
+  oldValue,
+  modelValue,
+  dispatch,
+  emit,
+  sliderSize
 ) => {
-  const sliderSize = ref(1)
   const getSlider = () => {
     return unref(slider)
   }
+
   const resetSize = () => { // 用来获取当前滑动框的长度
     const slider = getSlider()
     if (slider) {
@@ -68,9 +122,43 @@ export const useInteractive = (
     }
   }
 
+  const valueChanged = () => { // 判断值是否发生改变
+    return unref(value) !== unref(oldValue)
+  }
+
+  const setValue = () => { // 建立和绑定初值,并且当值改变时，向Form派发验证
+    if (unref(min) > unref(max)) {
+      console.error('[Element Error][Slider]min should not be greater than max.')
+      return null
+    }
+    if (unref(modelValue) < unref(min)) emit('update:modelValue', unref(min))
+    else if (unref(modelValue) > unref(max))emit('update:modelValue', unref(max))
+    else {
+      value.value = unref(modelValue)
+      if (valueChanged()) {
+        dispatch('FormItem', 'form-change', [unref(modelValue)])
+        oldValue.value = unref(value)
+      }
+    }
+  }
+
+  const resetValue = () => {
+    value.value = 0
+  }
+
+  watch(modelValue, () => {
+    setValue()
+  })
+
+  watch(value, () => {
+    emit('update:modelValue', unref(value))
+  })
+
   return {
     resetSize,
-    sliderSize
+    sliderSize,
+    setValue,
+    resetValue
   }
 }
 
@@ -83,6 +171,9 @@ export const useButtonSlider = (
   value,
   vertical
 ) => {
+  const btnSlider = ref(null)
+  const btnSize = ref(0) // 用于记录拖动按钮宽度,默认为0,不影响计算
+
   const disabled = computed(() => {
     return Slider.disabled
   })
@@ -95,11 +186,26 @@ export const useButtonSlider = (
     return Slider.sliderSize
   })
 
+  const totalDistance = computed(() => {
+    return unref(slidersize) - unref(btnSize)
+  })
+
   const min = computed(() => {
     return Slider.min
   })
 
+  const isVerify = computed(() => {
+    return Slider.isVerifySlider
+  })
+
   const currentPosition = computed(() => {
+    if (unref(isVerify)) {
+      /**
+       * / unref(slidersize) * unref(totalDistance)
+       * 这一步骤主要处理类型为verify时，拖动框距离需要减去一个拖动按钮大小，所产生的变动
+       * */
+      return `${((unref(value) - unref(min)) / (unref(max) - unref(min))) * 100 / unref(slidersize) * unref(totalDistance)}%`
+    }
     return `${((unref(value) - unref(min)) / (unref(max) - unref(min))) * 100}%`
   })
 
@@ -125,7 +231,11 @@ export const useButtonSlider = (
     currentPosition,
     step,
     precision,
-    wrapperStyle
+    wrapperStyle,
+    btnSlider,
+    btnSize,
+    isVerify,
+    totalDistance
   }
 }
 export const useMouseEvent = (
@@ -138,7 +248,10 @@ export const useMouseEvent = (
   min,
   precision,
   emit,
-  Slider
+  Slider,
+  btnSlider,
+  btnSize,
+  totalDistance
 ) => {
   const hovering = ref(false) // 是否接触到按钮
   const dragging = ref(false) // 是否正在拖动该按钮
@@ -149,6 +262,18 @@ export const useMouseEvent = (
   const startX = ref(0) // x轴滑动距离
   const startPosition = ref(0.0) // 用于记录开始位置
   const newPosition = ref(null) // 用于记录新的位置
+
+  const getBtnSlider = () => {
+    return unref(btnSlider)
+  }
+
+  const getBtnSize = () => { // 用来获取当前滑动按钮的宽度或长度
+    const btnSlider = getBtnSlider()
+    if (btnSlider) {
+      btnSize.value = btnSlider[
+        `client${unref(vertical) ? 'Height' : 'Width'}`]
+    }
+  }
 
   const handleMouseEnter = () => {
     hovering.value = true
@@ -181,7 +306,8 @@ export const useMouseEvent = (
     } else {
       startX.value = event.clientX
     }
-    startPosition.value = parseFloat(unref(currentPosition)) // 获得当前位置,去除%
+    // 这里运用 * unref(slidersize) / unref(totalDistance) 还原verify类型下的数值
+    startPosition.value = parseFloat(unref(currentPosition)) * unref(slidersize) / unref(totalDistance) // 获得当前位置,去除%
     newPosition.value = unref(startPosition)
   }
 
@@ -196,11 +322,12 @@ export const useMouseEvent = (
       }
       if (vertical) {
         currentY.value = event.clientY
-        diff = ((unref(startY) - unref(currentY)) / unref(slidersize)) * 100 // 得出当前百分比值对应位置
+        diff = ((unref(startY) - unref(currentY)) / unref(totalDistance)) * 100 // 得出当前百分比值对应位置
       } else {
         currentX.value = event.clientX
-        diff = ((unref(currentX) - unref(startX)) / unref(slidersize)) * 100
+        diff = ((unref(currentX) - unref(startX)) / unref(totalDistance)) * 100
       }
+      console.log(diff)
       newPosition.value = unref(startPosition) + diff
       setPosition(newPosition) // 更新拖动按钮相对位置
     }
@@ -233,7 +360,7 @@ export const useMouseEvent = (
       const steps = Math.round(unref(newPosition) / lengthPerStep)
       let value = steps * lengthPerStep * (unref(max) - unref(min)) * 0.01 + unref(min)
       value = parseFloat(value.toFixed(unref(precision))) // 根据精度，得到值一定小数点后几位的浮点数值
-      emit('update:value', value) // 传值，展示不知如何传值
+      emit('update:modelValue', value) // 传值
     }
   }
 
@@ -242,6 +369,7 @@ export const useMouseEvent = (
     dragging,
     handleMouseEnter,
     handleMouseLeave,
-    onButtonDown
+    onButtonDown,
+    getBtnSize
   }
 }
