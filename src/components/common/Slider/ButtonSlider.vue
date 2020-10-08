@@ -6,37 +6,46 @@
     @mousedown="onButtonDown"
     @touchstart="onButtonDown"
     :style="wrapperStyle"
-    :class="{ hover: hovering, dragging: dragging }"
+    :class="'btn-slider-' + type "
+    ref = "btnSlider"
   >
     <div
       class="btn-slider"
       :class="{ hover: hovering, dragging: dragging }"
-    ></div>
+    >
+      <i v-if="type === 'verify'" class="fa fa-arrow-right"></i>
+    </div>
   </div>
 </template>
 
 <script>
 import {
   toRefs,
-  inject
+  inject,
+  unref,
+  onMounted
 } from 'vue'
 import { useButtonSlider, useMouseEvent } from './use'
 
 export default {
   name: 'ButtonSlider',
   props: {
-    value: {
+    modelValue: {
       type: Number,
       default: 0
     },
     vertical: { // 按钮拖动方式是否垂直
       type: Boolean,
       default: false
+    },
+    type: { // 用来定义按钮类型样式
+      type: String,
+      default: 'number'
     }
   },
   inject: ['Slider'],
   setup (props, { emit }) {
-    const { verticcal, value } = toRefs(props)
+    const { verticcal, modelValue } = toRefs(props)
     const Slider = inject('Slider', {})
 
     const {
@@ -47,14 +56,24 @@ export default {
       max,
       min,
       precision,
-      wrapperStyle
-    } = useButtonSlider(Slider, value, verticcal)
+      wrapperStyle,
+      btnSlider,
+      btnSize,
+      isVerify,
+      totalDistance
+    } = useButtonSlider(
+      Slider,
+      modelValue,
+      verticcal
+    )
+
     const {
       hovering,
       dragging,
       handleMouseEnter,
       handleMouseLeave,
-      onButtonDown
+      onButtonDown,
+      getBtnSize
     } = useMouseEvent(
       disabled,
       verticcal,
@@ -65,16 +84,25 @@ export default {
       min,
       precision,
       emit,
-      Slider
+      Slider,
+      btnSlider,
+      btnSize,
+      totalDistance
     )
 
+    onMounted(() => {
+      if (unref(isVerify)) getBtnSize()
+    })
+
     return {
+      ...toRefs(props),
       hovering,
       dragging,
       wrapperStyle,
       handleMouseEnter,
       handleMouseLeave,
-      onButtonDown
+      onButtonDown,
+      btnSlider
     }
   }
 }
@@ -85,26 +113,53 @@ export default {
   height: 32px;
   width: 32px;
   position: absolute;
-  top: -13px;
-  transform: translateX(-50%);
+  z-index: 13;
   display: flex;
   align-items: center;
   justify-content: center;
   transition:transform 0.5s;
   .hover{
     cursor: grab;
-    transform: scale(1.2);
   }
   .dragging{
     cursor: grabbing;
-    transform: scale(1.2);
   }
+}
+.btn-slider-number{
+  top: -13px;
+  transform: translateX(-50%);
   .btn-slider{
     height: 16px;
     width: 16px;
-    border: 2px solid #409eff;
-    background-color: #fff;
+    border: 2px solid var(--theme-color);
+    background-color: var(--main-background-color);
     border-radius:50%;
+  }
+  .hover, .dragging{
+    transform: scale(1.2);
+  }
+}
+.btn-slider-verify{
+  transition:0.5s !important;
+  .btn-slider{
+    height: 100%;
+    width: 100%;
+    border-radius:3px;
+    box-shadow: 0 0 3px rgba(0,0,0,.3);
+    background-color: var(--theme-color);
+    color: var(--main-color);
+    font-weight: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    i{
+      transition:transform 0.3s;
+    }
+  }
+  .hover, .dragging{
+    i{
+      transform: scale(1.2);
+    }
   }
 }
 </style>
