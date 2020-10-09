@@ -3,52 +3,99 @@
 可以通过父访问子的方式，进行handleModalShow
 -->
 <template>
-  <div :class="'modal-' + status">
-    <div class="modal" :class="size">
-      <button class="close-btn"  @click="handleModalFade"><i class="fa fa-close"/></button>
-      <div class="modal-header">
-        <slot name="header"></slot>
+  <div class="modal" v-show="visable">
+    <transition name="slide-top" appear>
+      <div v-show="visable" class="modal" :class="size">
+        <button class="close-btn"  @click="handleModalFade"><i class="fa fa-close"></i></button>
+        <div class="modal-header" v-if="slots.header">
+          <slot name="header"></slot>
+        </div>
+        <div class="modal-content" v-if="slots.content">
+          <slot name="content"></slot>
+        </div>
+        <div class="modal-footer"  v-if="slots.footer">
+          <slot name="footer"></slot>
+        </div>
       </div>
-      <div class="modal-content">
-        <slot name="content"></slot>
-      </div>
-      <div class="modal-footer">
-        <slot name="footer"></slot>
-      </div>
-    </div>
-    <div class="modal-mask" @click="handleModalFade"></div>
+    </transition>
+    <div v-if="mask" class="modal-mask" @click="handleModalFade"></div>
   </div>
 </template>
 
 <script>
+import {
+  toRefs,
+  ref,
+  unref,
+  onMounted
+} from 'vue'
+
+const useModal = (
+) => {
+  const visable = ref(false)
+
+  return {
+    visable
+  }
+}
+
+const useInteractive = (
+  visable
+) => {
+  const handleModalFade = () => {
+    visable.value = false
+  }
+  const handleModalShow = () => {
+    visable.value = true
+  }
+
+  return {
+    handleModalFade,
+    handleModalShow,
+    visable
+  }
+}
+
 export default {
   name: 'Modal',
   props: {
-    modalStatus: {
-      type: String,
-      default: 'show'
+    showModal: {
+      type: Boolean,
+      default: false
     },
     size: {
       type: String,
       default: 'lg'
-    }
-  },
-  watch: {
-    modalStatus: function (newVal) {
-      this.status = newVal
-    }
-  },
-  data () {
-    return {
-      status: this.modalStatus
-    }
-  },
-  methods: {
-    handleModalFade () {
-      this.status = 'fade'
     },
-    handleModalShow () {
-      this.status = 'show'
+    mask: { // 决定是否显示遮罩层
+      type: Boolean,
+      default: true
+    }
+  },
+  setup (props, { slots }) {
+    const { showModal } = toRefs(props)
+
+    const {
+      visable
+    } = useModal()
+
+    const {
+      handleModalFade,
+      handleModalShow
+    } = useInteractive(
+      visable
+    )
+
+    onMounted(() => {
+      visable.value = unref(showModal)
+    })
+
+    return {
+      slots,
+      handleModalFade,
+      handleModalShow,
+      ...toRefs(props),
+      visable
     }
   }
 }
@@ -112,14 +159,6 @@ export default {
   .modal.sm{
     width: 40%;
   }
-  .modal-fade{
-    opacity: 0;
-    visibility:hidden;
-  }
-  .modal-show{
-    opacity: 1;
-    visibility:visible;
-  }
   .modal-mask{
     position: fixed;
     top: 0;
@@ -136,5 +175,19 @@ export default {
       top: auto;
       border-radius: 20px 20px 0 0;
     }
+  }
+  .slide-top-leave-active{
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  .slide-top-enter-active{
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  .fade-enter-active {
+    opacity: 0;
+  }
+  .fade-leave-active {
+    opacity: 0;
   }
 </style>
