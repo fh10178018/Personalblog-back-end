@@ -1,5 +1,5 @@
 import { destroyVM } from '../util'
-import { mount, before, } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { reactive } from 'vue';
 import Form from '../../../src/components/common/Form/Form'
 import FormItem from '../../../src/components/common/FormItem/FormItem'
@@ -7,8 +7,8 @@ import InputString from '../../../src/components/common/InputString'
 
 describe('Form & FormItem',() => {
   let vm
-
   //测试用例后销毁
+
   afterEach(() => {
     destroyVM(vm)
   })
