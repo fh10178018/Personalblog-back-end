@@ -6,7 +6,7 @@
     @mousedown="onButtonDown"
     @touchstart="onButtonDown"
     :style="wrapperStyle"
-    :class="'btn-slider-' + type "
+    :class="['btn-slider-' + type, dragging?'btn-slider-dragging':'']"
     ref = "btnSlider"
   >
     <div
@@ -117,7 +117,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition:transform 0.5s;
+  transition:0.5s;
   .hover{
     cursor: grab;
   }
@@ -140,7 +140,6 @@ export default {
   }
 }
 .btn-slider-verify{
-  transition:0.5s !important;
   .btn-slider{
     height: 100%;
     width: 100%;
@@ -160,6 +159,12 @@ export default {
     i{
       transform: scale(1.2);
     }
+  }
+}
+.btn-slider-dragging{
+  transition:none !important;
+  +.pass{
+    transition:none !important;
   }
 }
 </style>

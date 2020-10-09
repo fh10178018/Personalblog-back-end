@@ -126,6 +126,19 @@ export const useInteractive = (
     return unref(value) !== unref(oldValue)
   }
 
+  const handleBlur = () => {
+    if (valueChanged()) {
+      dispatch('FormItem', 'form-blur', [unref(modelValue)])
+    }
+  }
+
+  const handleChange = () => {
+    if (valueChanged()) {
+      dispatch('FormItem', 'form-change', [unref(modelValue)])
+      oldValue.value = unref(value)
+    }
+  }
+
   const setValue = () => { // 建立和绑定初值,并且当值改变时，向Form派发验证
     if (unref(min) > unref(max)) {
       console.error('[Element Error][Slider]min should not be greater than max.')
@@ -135,15 +148,16 @@ export const useInteractive = (
     else if (unref(modelValue) > unref(max))emit('update:modelValue', unref(max))
     else {
       value.value = unref(modelValue)
-      if (valueChanged()) {
-        dispatch('FormItem', 'form-change', [unref(modelValue)])
-        oldValue.value = unref(value)
-      }
+      handleChange()
     }
   }
 
-  const resetValue = () => {
+  const resetValue = () => { // 直接设置值为0， 而真正的动画通过css样式实现,详情看.btn-slider-dragging样式
     value.value = 0
+    if (valueChanged()) {
+      dispatch('FormItem', 'form-change', [unref(modelValue)])
+      oldValue.value = unref(value)
+    }
   }
 
   watch(modelValue, () => {
@@ -158,7 +172,8 @@ export const useInteractive = (
     resetSize,
     sliderSize,
     setValue,
-    resetValue
+    resetValue,
+    handleBlur
   }
 }
 
@@ -327,7 +342,6 @@ export const useMouseEvent = (
         currentX.value = event.clientX
         diff = ((unref(currentX) - unref(startX)) / unref(totalDistance)) * 100
       }
-      console.log(diff)
       newPosition.value = unref(startPosition) + diff
       setPosition(newPosition) // 更新拖动按钮相对位置
     }
@@ -342,6 +356,7 @@ export const useMouseEvent = (
           setPosition(newPosition)
         }
       }, 0)
+      Slider.handleBlur() // 触发blur监听事件
       window.removeEventListener('mousemove', onDragging) // 移除监听事件
       window.removeEventListener('touchmove', onDragging)
       window.removeEventListener('mouseup', onDragEnd)

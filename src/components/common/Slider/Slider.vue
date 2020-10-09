@@ -3,12 +3,12 @@
   :class="showClass"
 >
   <div class="way" ref="slider">
-    <div class="message"><h5>请按住滑块拖动</h5></div>
-    <div class="pass" :style="passStyle"></div>
+    <div v-if="isVerifySlider" class="message"><h5>请按住滑块拖动</h5></div>
     <ButtonSlider
       v-model="value"
       :type="isVerifySlider?'verify':'number'"
     />
+    <div class="pass" :style="passStyle"></div>
     <template v-if="markList.length > 0 && !isVerifySlider">
       <div
         v-for="(item, key) in markList"
@@ -19,7 +19,6 @@
     </template>
   </div>
 </div>
-  <div @click="resetValue">asd</div>
 </template>
 
 <script>
@@ -98,7 +97,8 @@ export default {
     const {
       resetSize,
       setValue,
-      resetValue
+      resetValue,
+      handleBlur
     } = useInteractive(
       slider,
       vertical,
@@ -120,7 +120,8 @@ export default {
         sliderSize,
         resetSize,
         precision,
-        isVerifySlider
+        isVerifySlider,
+        handleBlur // 用于当按钮松开，不处于焦点时，触发事件
       })
     )
 
@@ -155,6 +156,7 @@ export default {
   .pass{
     position: absolute;
     z-index: 12;
+    transition:0.5s;
   }
   .message{
     position: absolute;
@@ -164,6 +166,8 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    color: var(--light-color);
+    user-select:none;
   }
 }
 .slider-number{
@@ -202,7 +206,6 @@ export default {
     background-color: var(--theme-color);
     opacity: 0.3;
     border-radius: 3px;
-    transition:0.5s;
   }
 }
 </style>
