@@ -2,10 +2,16 @@
 <div
   :class="showClass"
 >
-  <div class="way" ref="slider">
+  <div
+    class="way"
+    ref="slider"
+    @click="onSliderClick"
+    v-resize="getResize"
+  >
     <div v-if="isVerifySlider" class="message"><h5>请按住滑块拖动</h5></div>
     <ButtonSlider
       v-model="value"
+      ref="btnSlider"
       :type="isVerifySlider?'verify':'number'"
     />
     <div class="pass" :style="passStyle"></div>
@@ -26,10 +32,11 @@ import {
   toRefs,
   provide,
   reactive,
-  onMounted
+  onMounted,
+  onBeforeUnmount
 } from 'vue'
 import ButtonSlider from './ButtonSlider'
-import { useInteractive, useSlider } from './use'
+import { useInteractive, useSlider, useValidate } from './use'
 import { useEmitter } from '../../../utils/emmiter'
 
 export default {
@@ -68,11 +75,17 @@ export default {
     type: { // 滑动框类型，verify或number
       type: String,
       default: 'number'
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
+  inject: ['FormItem'],
   setup (props, { emit }) {
-    const { vertical, min, max, step, modelValue, size, type, showStops } = toRefs(props)
+    const { vertical, min, max, step, modelValue, size, type, showStops, disabled } = toRefs(props)
     const { dispatch } = useEmitter()
+    const { validateState } = useValidate()
 
     const {
       passStyle,
@@ -84,7 +97,10 @@ export default {
       markList,
       getStopStyle,
       showClass,
-      isVerifySlider
+      isVerifySlider,
+      sliderDisabled,
+      dragging,
+      btnSlider
     } = useSlider(
       vertical,
       min,
@@ -92,12 +108,16 @@ export default {
       step,
       showStops,
       type,
-      size
+      size,
+      disabled,
+      validateState
     )
     const {
-      resetSize,
       setValue,
       resetValue,
+      emitChange,
+      onSliderClick,
+      getResize,
       handleBlur
     } = useInteractive(
       slider,
@@ -109,7 +129,12 @@ export default {
       modelValue,
       dispatch,
       emit,
-      sliderSize
+      sliderSize,
+      sliderDisabled,
+      dragging,
+      btnSlider,
+      isVerifySlider,
+      validateState
     )
 
     provide('Slider',
@@ -118,16 +143,17 @@ export default {
         ...toRefs(props),
         value,
         sliderSize,
-        resetSize,
         precision,
         isVerifySlider,
-        handleBlur // 用于当按钮松开，不处于焦点时，触发事件
+        sliderDisabled,
+        emitChange,
+        dragging,
+        handleBlur
       })
     )
 
     onMounted(() => {
       setValue()
-      resetSize()
     })
 
     return {
@@ -139,7 +165,11 @@ export default {
       markList,
       showClass,
       isVerifySlider,
-      resetValue
+      resetValue,
+      emitChange,
+      onSliderClick,
+      btnSlider,
+      getResize
     }
   }
 }

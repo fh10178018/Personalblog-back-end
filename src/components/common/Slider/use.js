@@ -2,7 +2,9 @@ import {
   computed,
   unref,
   ref,
-  watch
+  watch,
+  inject,
+  nextTick
 } from 'vue'
 
 /**
@@ -16,19 +18,42 @@ export const useSlider = (
   step,
   showStops,
   type,
-  size
+  size,
+  disabled,
+  validateState
 ) => {
   const value = ref(null)
-  const slider = ref(null)
+  const slider = ref(null) // 获得对应实例
+  const btnSlider = ref(null) // 获得对应实例
   const oldValue = ref(null)
+  const dragging = ref(false)
   const sliderSize = ref(0)
+  const Form = inject('Form', {})
 
-  const rangeSize = computed(() => {
-    return unref(max) - unref(min)
+  const sSize = computed(() => { // 这个sSize指代的是，框体规格大小
+    return (
+      unref(size) === 'normal' && !!unref(Form.size) ? unref(Form.size) : unref(size)
+    )
+  })
+
+  const isOk = computed(() => {
+    return unref(validateState) === 'success'
   })
 
   const isVerifySlider = computed(() => {
     return unref(type) === 'verify'
+  })
+
+  const sliderDisabled = computed(() => {
+    return (
+      unref(disabled) || (
+        unref(Form.disabled) ? unref(Form.disabled) : false
+      ) || (unref(isOk) && unref(isVerifySlider))
+    )
+  })
+
+  const rangeSize = computed(() => {
+    return unref(max) - unref(min)
   })
 
   const barSize = computed(() => {
@@ -75,7 +100,8 @@ export const useSlider = (
     return [
       'slider',
       unref(isVerifySlider) ? 'slider-verify' : 'slider-number',
-      `slider-${unref(size)}`
+      `slider-${unref(sSize)}`,
+      unref(sliderDisabled) ? 'isDisabled' : ''
     ]
   })
 
@@ -95,7 +121,10 @@ export const useSlider = (
     markList,
     getStopStyle,
     showClass,
-    isVerifySlider
+    isVerifySlider,
+    sliderDisabled,
+    dragging,
+    btnSlider
   }
 }
 export const useInteractive = (
@@ -108,35 +137,57 @@ export const useInteractive = (
   modelValue,
   dispatch,
   emit,
-  sliderSize
+  sliderSize,
+  sliderDisabled,
+  dragging,
+  btnSlider,
+  isVerifySlider,
+  validateState
 ) => {
   const getSlider = () => {
     return unref(slider)
   }
 
-  const resetSize = () => { // 用来获取当前滑动框的长度
-    const slider = getSlider()
-    if (slider) {
-      sliderSize.value = slider[
-        `client${unref(vertical) ? 'Height' : 'Width'}`]
-    }
+  const getBtn = () => {
+    return unref(btnSlider)
+  }
+
+  const getResize = val => { // 监听宽高的回调函数，防止v-show问题
+    sliderSize.value = unref(vertical) ? val.height : val.width
   }
 
   const valueChanged = () => { // 判断值是否发生改变
     return unref(value) !== unref(oldValue)
   }
 
-  const handleBlur = () => {
-    if (valueChanged()) {
-      dispatch('FormItem', 'form-blur', [unref(modelValue)])
-    }
+  const emitChange = () => {
+    nextTick(() => {
+      emit('change', unref(value))
+    })
   }
 
-  const handleChange = () => {
-    if (valueChanged()) {
-      dispatch('FormItem', 'form-change', [unref(modelValue)])
-      oldValue.value = unref(value)
+  const handleBlur =() => {
+    dispatch('FormItem', 'form-blur', unref(modelValue))
+  }
+  const sliderBlur = () => {
+    dispatch('FormItem', 'form-change', unref(modelValue))
+  }
+
+  const onSliderClick = () => { // 当鼠标点击时，直接定位到位置
+    const slider = getSlider()
+    if (unref(sliderDisabled) || unref(dragging) || unref(isVerifySlider)) return null
+    if (unref(vertical)) {
+      const sliderOffsetBottom = slider.getBoundingClientRect().bottom
+      setPosition(
+        ((sliderOffsetBottom - event.clientY) / unref(sliderSize)) * 100
+      )
+    } else {
+      const sliderOffsetLeft = slider.getBoundingClientRect().left
+      setPosition(
+        ((event.clientX - sliderOffsetLeft) / unref(sliderSize)) * 100
+      )
     }
+    emitChange()
   }
 
   const setValue = () => { // 建立和绑定初值,并且当值改变时，向Form派发验证
@@ -145,36 +196,67 @@ export const useInteractive = (
       return null
     }
     if (unref(modelValue) < unref(min)) emit('update:modelValue', unref(min))
-    else if (unref(modelValue) > unref(max))emit('update:modelValue', unref(max))
+    else if (unref(modelValue) > unref(max)) emit('update:modelValue', unref(max))
     else {
       value.value = unref(modelValue)
-      handleChange()
+      if (valueChanged()) {
+        console.log('sad')
+        sliderBlur()
+        oldValue.value = unref(value)
+      }
     }
   }
 
   const resetValue = () => { // 直接设置值为0， 而真正的动画通过css样式实现,详情看.btn-slider-dragging样式
+    console.log('as')
     value.value = 0
-    if (valueChanged()) {
-      dispatch('FormItem', 'form-change', [unref(modelValue)])
-      oldValue.value = unref(value)
-    }
   }
 
-  watch(modelValue, () => {
+  const setPosition = (percent) => {
+    const btn = getBtn()
+    btn.setPosition(percent)
+  }
+
+  watch(modelValue, (newVal, oldVal) => {
+    if (newVal === oldVal) return null
     setValue()
   })
 
-  watch(value, () => {
+  watch(value, value => {
     emit('update:modelValue', unref(value))
   })
 
+  watch(dragging, val => {
+    console.log(val)
+    !val && setValue()
+  })
+
+  watch(validateState, val => {
+    console.log(val)
+    if (val === 'error') {
+      resetValue()
+    }
+  })
+
   return {
-    resetSize,
     sliderSize,
     setValue,
     resetValue,
+    emitChange,
+    onSliderClick,
+    getResize,
     handleBlur
   }
+}
+
+export const useValidate = () => {
+  const FormItem = inject('FormItem', '')
+  const validateState = computed(() => {
+    console.log(FormItem.validateResult)
+    return FormItem ? FormItem.validateResult : ''
+  })
+
+  return { validateState }
 }
 
 /**
@@ -183,14 +265,14 @@ export const useInteractive = (
 
 export const useButtonSlider = (
   Slider,
-  value,
+  modelValue,
   vertical
 ) => {
   const btnSlider = ref(null)
   const btnSize = ref(0) // 用于记录拖动按钮宽度,默认为0,不影响计算
 
   const disabled = computed(() => {
-    return Slider.disabled
+    return Slider.sliderDisabled
   })
 
   const max = computed(() => {
@@ -219,9 +301,9 @@ export const useButtonSlider = (
        * / unref(slidersize) * unref(totalDistance)
        * 这一步骤主要处理类型为verify时，拖动框距离需要减去一个拖动按钮大小，所产生的变动
        * */
-      return `${((unref(value) - unref(min)) / (unref(max) - unref(min))) * 100 / unref(slidersize) * unref(totalDistance)}%`
+      return `${((unref(modelValue) - unref(min)) / (unref(max) - unref(min))) * 100 / unref(slidersize) * unref(totalDistance)}%`
     }
-    return `${((unref(value) - unref(min)) / (unref(max) - unref(min))) * 100}%`
+    return `${((unref(modelValue) - unref(min)) / (unref(max) - unref(min))) * 100}%`
   })
 
   const step = computed(() => {
@@ -301,6 +383,7 @@ export const useMouseEvent = (
   const onButtonDown = event => {
     if (unref(disabled)) return null // 如果被静止，触发事件取消
     event.preventDefault() // 取消事件的默认的动作， 可以防止屏幕滚动等
+    getBtnSize()
     onDragStart(event)
     window.addEventListener('mousemove', onDragging) // 添加事件监听
     window.addEventListener('touchmove', onDragging)
@@ -329,7 +412,6 @@ export const useMouseEvent = (
   const onDragging = event => {
     if (unref(dragging)) {
       isClick.value = false // 拖动时，点击为false
-      Slider.resetSize() // 更新获得最新的拖动框长度
       let diff = 0
       if (event.type === 'touchmove') { // 触摸移动时，记录移动
         event.clientY = event.touches[0].clientY
@@ -353,10 +435,10 @@ export const useMouseEvent = (
       setTimeout(() => {
         dragging.value = false
         if (!unref(isClick)) {
+          Slider.handleBlur()
           setPosition(newPosition)
         }
       }, 0)
-      Slider.handleBlur() // 触发blur监听事件
       window.removeEventListener('mousemove', onDragging) // 移除监听事件
       window.removeEventListener('touchmove', onDragging)
       window.removeEventListener('mouseup', onDragEnd)
@@ -379,12 +461,17 @@ export const useMouseEvent = (
     }
   }
 
+  watch(dragging, newVal => {
+    Slider.dragging = unref(newVal)
+  })
+
   return {
     hovering,
     dragging,
     handleMouseEnter,
     handleMouseLeave,
     onButtonDown,
-    getBtnSize
+    getBtnSize,
+    setPosition
   }
 }

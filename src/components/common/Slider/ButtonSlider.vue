@@ -73,7 +73,8 @@ export default {
       handleMouseEnter,
       handleMouseLeave,
       onButtonDown,
-      getBtnSize
+      getBtnSize,
+      setPosition
     } = useMouseEvent(
       disabled,
       verticcal,
@@ -102,7 +103,8 @@ export default {
       handleMouseEnter,
       handleMouseLeave,
       onButtonDown,
-      btnSlider
+      btnSlider,
+      setPosition
     }
   }
 }
