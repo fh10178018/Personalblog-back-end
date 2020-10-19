@@ -1,122 +1,198 @@
+<!--
+这里最重要的第一点，便是handleAfterLeave和v-show的结合
+v-show,任然留有缓存
+且能实现离开时下个信息向上的补充动画
+v-if是两者的结合，但缺点有很多，同时会留下注释痕迹,个人感觉是留有缓存
+但切记便是handleAfterLeave和v-if无法结合，v-if会导致节点删除，无法进一步删除，且冲突
+-->
 <template>
-  <transition name="slide">
-    <div class="message-wrap" :class="type" v-if="visible">
-      <div class="info">
-        <i class="fa" :class="iconClass"></i>
-        <div class="content">
-          <h2>{{content}}</h2>
-          <p>{{nowDate}}</p>
-        </div>
+<transition name="message-slide" @after-leave="handleAfterLeave" appear>
+  <div class="message-item"
+       :class="msgClass"
+       v-show="!closed"
+       @mouseenter="clearTimer"
+       @mouseleave="startTimer"
+       role="alert"
+  >
+    <div class="info">
+      <i class="fa" :class="iconClass"></i>
+      <div class="content">
+        <h5>{{content}}</h5>
+        <p v-if="showDate">{{nowDate}}</p>
       </div>
-      <button @click="hideMessage">知道了</button>
     </div>
+    <Button
+      v-if="showClose"
+      @click="close"
+      type="text"
+    >
+      <i class="fa fa-close"></i>
+    </Button>
+  </div>
 </transition>
 </template>
 
 <script>
-import Format from '@/config/data_format'
+import {
+  toRefs,
+  onMounted,
+  onUnmounted
+} from 'vue'
+import {
+  useMessage,
+  useInteractive
+} from './use'
+import Button from '../Button/Button'
 
 export default {
   name: 'Message',
-  data () {
-    return {
-      visible: false,
-      content: '正在加载',
-      type: 'info'
-    }
-  },
-  methods: {
-    showMessage (opt) {
-      opt = opt || {}
-      this.content = opt.content || '正在加载'
-      this.type = opt.type
-      this.visible = true
-      window.setTimeout(() => {
-        this.visible = false
-      }, 3000)
+  components: { Button },
+  props: {
+    duration: {
+      type: Number,
+      default: 3000
     },
-    hideMessage () {
-      this.visible = false
-    }
-  },
-  computed: {
-    nowDate () {
-      const date = new Date()
-      return Format('yyyy-MM-dd hh:mm:ss', date)
+    center: {
+      type: Boolean,
+      default: false
     },
-    iconClass () {
-      switch (this.type) {
-        case 'error':
-          return 'fa-exclamation-circle'
-        case 'success':
-          return 'fa-check-square-o'
-        default:
-          return 'fa-commenting'
+    type: {
+      type: String,
+      default: 'info',
+      validator (val) {
+        return ['success', 'warning', 'info', 'error'].indexOf(val) > -1
       }
+    },
+    content: {
+      type: String,
+      default: ''
+    },
+    showClose: {
+      type: Boolean,
+      default: false
+    },
+    showDate: {
+      type: Boolean,
+      default: true
+    },
+    onClose: {
+      type: Function,
+      required: true
+    }
+  },
+  setup (props) {
+    const { duration, center, type, onClose } = toRefs(props)
+
+    const {
+      closed,
+      timer,
+      msgClass,
+      iconClass,
+      nowDate
+    } = useMessage(
+      center,
+      type
+    )
+
+    const {
+      close,
+      clearTimer,
+      startTimer,
+      keydown,
+      handleAfterLeave
+    } = useInteractive(
+      duration,
+      onClose,
+      timer,
+      closed
+    )
+
+    onMounted(() => {
+      startTimer()
+      document.addEventListener('keydown', keydown)
+    })
+
+    onUnmounted(() => {
+      document.removeEventListener('keydown', keydown)
+    })
+
+    return {
+      closed,
+      msgClass,
+      nowDate,
+      iconClass,
+      clearTimer,
+      startTimer,
+      close,
+      handleAfterLeave,
+      ...toRefs(props)
     }
   }
 }
 </script>
 
 <style lang="less">
-  .message-wrap {
+  #messageWrap{
     position: fixed;
-    background-color: var(--theme-color);
+    right: 1%;
+    top: 1%;
+  }
+  .message-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     color: var(--main-color);
-    left: 0;
-    right: 0;
-    margin: auto;
     width: 300px;
-    top: 25px;
-    padding: 10px;
+    padding: 5px;
+    margin-bottom: 5px;
     height: auto;
-    z-index: 1001;
     border-radius: 4px;
     text-align: center;
     transition: 0.5s;
     border: 1px solid #ebeef5;
     .info{
+      flex: 1;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      height: 100%;
       i{
         width: 60px;
-        text-align: left;
+        text-align: center;
         font-size: 50px;
       }
       .content {
         flex: 1;
         text-align: left;
-        h3{
-          line-height: 30px;
-        }
         p{
+          margin-top: 5px;
           font-size: 12px;
           opacity: 0.8;
         }
       }
     }
     button{
-      margin-top: 10px;
-      padding: 10px 0;
-      border-radius: 4px;
-      color: var(--main-color);
-      border: 0;
-      width: 100%;
-      background-color: rgba(255,255,255,0.5);
-      cursor: pointer;
+      color: white;
     }
   }
-  .error {
+  .message-item.message-info {
+    background-color: var(--theme-color);
+  }
+  .message-item.message-error {
     background-color: var(--error-color);
   }
-  .success {
-    background-color: green;
+  .message-item.message-success {
+    background-color: #00b462;
   }
-  .slide-enter-active,.slide-leave-active {
+  .message-item.message-warning {
+    background-color: #f2bd1d;
+  }
+  .message-slide-enter-active,.message-slide-leave-active {
+    opacity: 0;
     transform: translateY(-150%);
   }
-  .slide-enter,.slide-leave-to {
+  .message-slide-enter,.message-slide-leave-to {
+    opacity: 0;
     transform: translateY(-150%);
   }
 </style>
