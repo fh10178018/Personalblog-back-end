@@ -12,6 +12,7 @@
 <Button type="theme">主题按钮</Button>
 <Button type="success">成功按钮</Button>
 <Button type="warn">警告按钮</Button>
+<Button type="text">没有任何边框和背景色的按钮</Button>
 ```
 #### 按钮尺寸
 支持 `large`、`normal`、`small` 四种尺寸，默认为 `normal`
@@ -47,11 +48,12 @@
 
 | 参数      | 说明    | 类型      | 可选值       | 默认值   |
 |---------- |-------- |---------- |-------------  |-------- |
-| type  | 按钮类型    | string   | `default` `primary` `warn`  `success`| `default` |
+| type  | 按钮类型    | string   | `default` `primary` `warn`  `success` `text`| `default` |
 | size  | 按钮 大小    | string   | `normal` `large` `small` | `normal` |
 | disabled  | 按钮是否禁用    | boolean   | — | `false` |
 | loading  | 按钮是否加载中，同时禁用    | boolean   | — | `false` |
 | round  | 是否为圆角按钮   | boolean   | — | `false` |
 | circle  | 是否为圆形按钮，推荐插槽元素为方形    | boolean   | — | `false` |
 | style  | 按钮自定义样式    | object   | — | {} |
+| isButton  | 按钮tag是否为button，还是div   | boolean   | — | true |
 
