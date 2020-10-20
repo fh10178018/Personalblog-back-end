@@ -134,6 +134,7 @@ export default {
 <style lang="less">
   #messageWrap{
     position: fixed;
+    z-index: 2000;
     right: 1%;
     top: 1%;
   }
