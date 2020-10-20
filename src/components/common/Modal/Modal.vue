@@ -1,11 +1,22 @@
 <!--Modal组件
+@click.self的使用,不包括子元素
 初始化属性modalStatus（值为fade或show），来初始化modal的初始出现状态
 可以通过父访问子的方式，进行handleModalShow
 -->
 <template>
-  <div class="modal" v-show="visable">
-    <transition name="slide-top" appear>
-      <div v-show="visable" class="modal" :class="size">
+  <transition
+    name="modal-fade"
+    @after-enter="afterEnter"
+    @after-leave="afterLeave"
+    appear>
+    <div class="modal-wrap"
+         @click.self="handleModalFade"
+         :class="{'mask': mask}"
+         v-show="visable">
+      <div class="modal"
+           :class="size"
+           :style="modalStyle"
+      >
         <button class="close-btn"  @click="handleModalFade"><i class="fa fa-close"></i></button>
         <div class="modal-header" v-if="slots.header">
           <slot name="header"></slot>
@@ -17,9 +28,8 @@
           <slot name="footer"></slot>
         </div>
       </div>
-    </transition>
-    <div v-if="mask" class="modal-mask" @click="handleModalFade"></div>
-  </div>
+    </div>
+  </transition>
 </template>
 
 <script>
@@ -27,29 +37,55 @@ import {
   toRefs,
   ref,
   unref,
+  computed,
   onMounted
 } from 'vue'
 
 const useModal = (
+  top,
+  width
 ) => {
   const visable = ref(false)
 
+  const modalStyle = computed(() => {
+    const style = {}
+    style.marginTop = top.value
+    if (width && width.value) {
+      style.width = width.value
+    }
+    return style
+  })
+
   return {
-    visable
+    visable,
+    modalStyle
   }
 }
 
 const useInteractive = (
-  visable
+  visable,
+  emit
 ) => {
   const handleModalFade = () => {
+    emit('close')
     visable.value = false
   }
+
+  const afterEnter = () => {
+    emit('opened')
+  }
+  const afterLeave = () => {
+    emit('closed')
+  }
+
   const handleModalShow = () => {
+    emit('open')
     visable.value = true
   }
 
   return {
+    afterEnter,
+    afterLeave,
     handleModalFade,
     handleModalShow,
     visable
@@ -70,20 +106,33 @@ export default {
     mask: { // 决定是否显示遮罩层
       type: Boolean,
       default: true
-    }
+    },
+    top: {
+      type: String,
+      default: '15vh'
+    },
+    width: String
   },
-  setup (props, { slots }) {
-    const { showModal } = toRefs(props)
+  emits: ['close', 'opened', 'open', 'closed'],
+  setup (props, { slots, emit }) {
+    const { showModal, top, width } = toRefs(props)
 
     const {
-      visable
-    } = useModal()
+      visable,
+      modalStyle
+    } = useModal(
+      top,
+      width
+    )
 
     const {
+      afterEnter,
+      afterLeave,
       handleModalFade,
       handleModalShow
     } = useInteractive(
-      visable
+      visable,
+      emit
     )
 
     onMounted(() => {
@@ -91,10 +140,13 @@ export default {
     })
 
     return {
+      modalStyle,
       slots,
       handleModalFade,
       handleModalShow,
       ...toRefs(props),
+      afterEnter,
+      afterLeave,
       visable
     }
   }
@@ -102,52 +154,50 @@ export default {
 </script>
 
 <style lang="less">
-  .modal{
-    width: 80%;
+  .modal-wrap{
+    z-index: 2000;
     position: fixed;
+    overflow: auto;
+    margin: 0;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    margin: auto;
-    z-index: 2000;
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,.3);
-    display: grid;
-    grid-auto-rows: minmax(min-content, max-content);
-    height: max-content;
-    grid-template-areas: "header" "content" "footer";
     transition: 500ms;
-    .close-btn{
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 36px;
-      height: 36px;
-      background-color: transparent;
-      border: 0;
-      font-size: 25px;
-      cursor: pointer;
-    }
-    .close-btn:hover{
-      color: #d2b356;
-    }
-    .close-btn:focus{
-      outline: 0;
-    }
-    .modal-header{
-      grid-area: header;
-      padding: 10px;
-      font-size: 18px;
-    }
-    .modal-content{
-      grid-area: content;
-      padding: 10px;
-    }
-    .modal-footer{
-      grid-area: footer;
-      padding: 10px;
+    background-color: rgba(229, 229, 229, 0.6);
+    .modal{
+      background: var(--main-color);
+      box-shadow: 0 2px 5px rgba(0,0,0,.3);
+      position: relative;
+      margin: 0 auto 50px;
+      z-index: 2001;
+      .close-btn{
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 36px;
+        height: 36px;
+        background-color: transparent;
+        border: 0;
+        font-size: 25px;
+        cursor: pointer;
+      }
+      .close-btn:hover{
+        color: #d2b356;
+      }
+      .close-btn:focus{
+        outline: 0;
+      }
+      .modal-header{
+        padding: 10px;
+        font-size: 18px;
+      }
+      .modal-content{
+        padding: 10px;
+      }
+      .modal-footer{
+        padding: 10px;
+      }
     }
   }
   .modal.lg{
@@ -159,16 +209,6 @@ export default {
   .modal.sm{
     width: 40%;
   }
-  .modal-mask{
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #e5e5e5;
-    opacity: 0.6;
-    z-index: 1000;
-  }
   @media screen and (max-width: 830px){
     .modal{
       width: 100% !important;
@@ -176,18 +216,18 @@ export default {
       border-radius: 20px 20px 0 0;
     }
   }
-  .slide-top-leave-active{
+  .modal-fade-enter-active {
     opacity: 0;
-    transform: translateY(-100%);
+    .modal{
+      opacity: 0;
+      transform: translateY(100%);
+    }
   }
-  .slide-top-enter-active{
+  .modal-fade-leave-active {
     opacity: 0;
-    transform: translateY(100%);
-  }
-  .fade-enter-active {
-    opacity: 0;
-  }
-  .fade-leave-active {
-    opacity: 0;
+    .modal{
+      opacity: 0;
+      transform: translateY(-100%);
+    }
   }
 </style>
