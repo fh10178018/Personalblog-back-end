@@ -57,6 +57,9 @@ export const useSlider = (
   })
 
   const barSize = computed(() => {
+    if (unref(isVerifySlider)) {
+      return `${(100 * (unref(value) - unref(min) + 100 * (32 / unref(sliderSize)))) / (unref(max) - unref(min) + 100 * (32 / unref(sliderSize)))}%`
+    }
     return `${(100 * (unref(value) - unref(min))) / (unref(max) - unref(min))}%`
   })
 
@@ -124,7 +127,8 @@ export const useSlider = (
     isVerifySlider,
     sliderDisabled,
     dragging,
-    btnSlider
+    btnSlider,
+    isOk
   }
 }
 export const useInteractive = (
@@ -142,7 +146,9 @@ export const useInteractive = (
   dragging,
   btnSlider,
   isVerifySlider,
-  validateState
+  validateState,
+  resetValue,
+  type
 ) => {
   const getSlider = () => {
     return unref(slider)
@@ -166,10 +172,10 @@ export const useInteractive = (
     })
   }
 
-  const handleBlur =() => {
+  const handleBlur = () => {
     dispatch('FormItem', 'form-blur', unref(modelValue))
   }
-  const sliderBlur = () => {
+  const sliderChange = () => {
     dispatch('FormItem', 'form-change', unref(modelValue))
   }
 
@@ -200,16 +206,10 @@ export const useInteractive = (
     else {
       value.value = unref(modelValue)
       if (valueChanged()) {
-        console.log('sad')
-        sliderBlur()
+        sliderChange()
         oldValue.value = unref(value)
       }
     }
-  }
-
-  const resetValue = () => { // 直接设置值为0， 而真正的动画通过css样式实现,详情看.btn-slider-dragging样式
-    console.log('as')
-    value.value = 0
   }
 
   const setPosition = (percent) => {
@@ -227,13 +227,11 @@ export const useInteractive = (
   })
 
   watch(dragging, val => {
-    console.log(val)
     !val && setValue()
   })
 
   watch(validateState, val => {
-    console.log(val)
-    if (val === 'error') {
+    if (val === 'error' && unref(type) === 'verify') {
       resetValue()
     }
   })
@@ -241,7 +239,6 @@ export const useInteractive = (
   return {
     sliderSize,
     setValue,
-    resetValue,
     emitChange,
     onSliderClick,
     getResize,
@@ -251,12 +248,18 @@ export const useInteractive = (
 
 export const useValidate = () => {
   const FormItem = inject('FormItem', '')
+
   const validateState = computed(() => {
-    console.log(FormItem.validateResult)
     return FormItem ? FormItem.validateResult : ''
   })
 
-  return { validateState }
+  const resetValue = () => {
+    if (FormItem) {
+      FormItem.resetField()
+    }
+  }
+
+  return { validateState, resetValue }
 }
 
 /**
@@ -268,7 +271,6 @@ export const useButtonSlider = (
   modelValue,
   vertical
 ) => {
-  const btnSlider = ref(null)
   const btnSize = ref(0) // 用于记录拖动按钮宽度,默认为0,不影响计算
 
   const disabled = computed(() => {
@@ -284,7 +286,10 @@ export const useButtonSlider = (
   })
 
   const totalDistance = computed(() => {
-    return unref(slidersize) - unref(btnSize)
+    if (Slider.type === 'verify') {
+      return unref(slidersize) - unref(btnSize)
+    }
+    return unref(slidersize)
   })
 
   const min = computed(() => {
@@ -314,6 +319,16 @@ export const useButtonSlider = (
     return Slider.precision
   })
 
+  const btnIcon = computed(() => {
+    const arr = {
+      success: 'fa-check',
+      error: 'fa-arrow-right',
+      validating: 'fa-arrow-right',
+      default: 'fa-arrow-right'
+    }
+    return arr[unref(Slider.validateState)] || arr.default
+  })
+
   const wrapperStyle = computed(() => {
     return unref(vertical)
       ? { bottom: unref(currentPosition) }
@@ -329,10 +344,10 @@ export const useButtonSlider = (
     step,
     precision,
     wrapperStyle,
-    btnSlider,
     btnSize,
     isVerify,
-    totalDistance
+    totalDistance,
+    btnIcon
   }
 }
 export const useMouseEvent = (
@@ -346,7 +361,6 @@ export const useMouseEvent = (
   precision,
   emit,
   Slider,
-  btnSlider,
   btnSize,
   totalDistance
 ) => {
@@ -360,16 +374,8 @@ export const useMouseEvent = (
   const startPosition = ref(0.0) // 用于记录开始位置
   const newPosition = ref(null) // 用于记录新的位置
 
-  const getBtnSlider = () => {
-    return unref(btnSlider)
-  }
-
-  const getBtnSize = () => { // 用来获取当前滑动按钮的宽度或长度
-    const btnSlider = getBtnSlider()
-    if (btnSlider) {
-      btnSize.value = btnSlider[
-        `client${unref(vertical) ? 'Height' : 'Width'}`]
-    }
+  const getBtnSize = val => { // 用来获取当前滑动按钮的宽度或长度
+    btnSize.value = unref(vertical) ? val.height : val.width
   }
 
   const handleMouseEnter = () => {
@@ -383,7 +389,6 @@ export const useMouseEvent = (
   const onButtonDown = event => {
     if (unref(disabled)) return null // 如果被静止，触发事件取消
     event.preventDefault() // 取消事件的默认的动作， 可以防止屏幕滚动等
-    getBtnSize()
     onDragStart(event)
     window.addEventListener('mousemove', onDragging) // 添加事件监听
     window.addEventListener('touchmove', onDragging)

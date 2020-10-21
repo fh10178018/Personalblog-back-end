@@ -8,12 +8,13 @@
     :style="wrapperStyle"
     :class="['btn-slider-' + type, dragging?'btn-slider-dragging':'']"
     ref = "btnSlider"
+    v-resize="getBtnSize"
   >
     <div
       class="btn-slider"
       :class="{ hover: hovering, dragging: dragging }"
     >
-      <i v-if="type === 'verify'" class="fa fa-arrow-right"></i>
+      <i v-if="type === 'verify'" class="fa" :class="btnIcon"></i>
     </div>
   </div>
 </template>
@@ -21,9 +22,7 @@
 <script>
 import {
   toRefs,
-  inject,
-  unref,
-  onMounted
+  inject
 } from 'vue'
 import { useButtonSlider, useMouseEvent } from './use'
 
@@ -57,10 +56,9 @@ export default {
       min,
       precision,
       wrapperStyle,
-      btnSlider,
       btnSize,
-      isVerify,
-      totalDistance
+      totalDistance,
+      btnIcon
     } = useButtonSlider(
       Slider,
       modelValue,
@@ -86,14 +84,9 @@ export default {
       precision,
       emit,
       Slider,
-      btnSlider,
       btnSize,
       totalDistance
     )
-
-    onMounted(() => {
-      if (unref(isVerify)) getBtnSize()
-    })
 
     return {
       ...toRefs(props),
@@ -102,9 +95,10 @@ export default {
       wrapperStyle,
       handleMouseEnter,
       handleMouseLeave,
+      getBtnSize,
       onButtonDown,
-      btnSlider,
-      setPosition
+      setPosition,
+      btnIcon
     }
   }
 }
@@ -145,7 +139,7 @@ export default {
   .btn-slider{
     height: 100%;
     width: 100%;
-    border-radius:3px;
+    border-radius: 100%;
     box-shadow: 0 0 3px rgba(0,0,0,.3);
     background-color: var(--theme-color);
     color: var(--main-color);

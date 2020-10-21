@@ -8,7 +8,9 @@
     @click="onSliderClick"
     v-resize="getResize"
   >
-    <div v-if="isVerifySlider" class="message"><h5>请按住滑块拖动</h5></div>
+    <transition>
+      <div v-if="isVerifySlider && !dragging && !isOk" class="message"><h5>请按住滑块拖动</h5></div>
+    </transition>
     <ButtonSlider
       v-model="value"
       ref="btnSlider"
@@ -32,8 +34,7 @@ import {
   toRefs,
   provide,
   reactive,
-  onMounted,
-  onBeforeUnmount
+  onMounted
 } from 'vue'
 import ButtonSlider from './ButtonSlider'
 import { useInteractive, useSlider, useValidate } from './use'
@@ -85,7 +86,7 @@ export default {
   setup (props, { emit }) {
     const { vertical, min, max, step, modelValue, size, type, showStops, disabled } = toRefs(props)
     const { dispatch } = useEmitter()
-    const { validateState } = useValidate()
+    const { validateState, resetValue } = useValidate()
 
     const {
       passStyle,
@@ -100,7 +101,8 @@ export default {
       isVerifySlider,
       sliderDisabled,
       dragging,
-      btnSlider
+      btnSlider,
+      isOk
     } = useSlider(
       vertical,
       min,
@@ -114,7 +116,6 @@ export default {
     )
     const {
       setValue,
-      resetValue,
       emitChange,
       onSliderClick,
       getResize,
@@ -134,12 +135,14 @@ export default {
       dragging,
       btnSlider,
       isVerifySlider,
-      validateState
+      validateState,
+      resetValue,
+      type
     )
 
     provide('Slider',
       reactive({
-        name: 'Form',
+        name: 'Slider',
         ...toRefs(props),
         value,
         sliderSize,
@@ -148,7 +151,8 @@ export default {
         sliderDisabled,
         emitChange,
         dragging,
-        handleBlur
+        handleBlur,
+        validateState
       })
     )
 
@@ -165,11 +169,14 @@ export default {
       markList,
       showClass,
       isVerifySlider,
-      resetValue,
       emitChange,
       onSliderClick,
+      resetValue,
       btnSlider,
-      getResize
+      getResize,
+      dragging,
+      isOk,
+      validateState
     }
   }
 }
@@ -227,15 +234,15 @@ export default {
 .slider-verify{
   height: 32px;
   .way{
+    border-radius: 32px;
     height: 100%;
     background-color:var(--main-background-color);
-    border-radius: 3px;
   }
   .pass{
     height: 100%;
     background-color: var(--theme-color);
     opacity: 0.3;
-    border-radius: 3px;
+    border-radius: 32px;
   }
 }
 </style>
