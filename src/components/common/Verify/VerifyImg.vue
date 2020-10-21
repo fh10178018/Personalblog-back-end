@@ -1,6 +1,7 @@
 <template>
-  <div class="verify-img" :class="verifyIsOk?'active':''" :style="[backgroundImage,transformRotate]">
+  <div class="verify-img" :class="showClass" :style="transformRotate">
     <i class="fa fa-check"></i>
+    <LoadingImg customClass="image"  :src="backgroundImage"></LoadingImg>
   </div>
 </template>
 
@@ -11,12 +12,15 @@ import {
   toRefs,
   watch,
   unref,
-  onMounted
+  onMounted,
+  inject
 } from 'vue'
 import allImages from '../../../assets/images/verify_img/index'
+import LoadingImg from '../LoadingImg/LoadingImg'
 
 const useVerifyImg = (
-  allImages
+  allImages,
+  VerifyModel
 ) => {
   const deg = ref(null)
   const verifyIsOk = ref(false)
@@ -32,30 +36,45 @@ const useVerifyImg = (
     }
   })
 
+  const dragging = computed(() => {
+    return VerifyModel.dragging
+  })
+
+  const validateIsOk = computed(() => {
+    return VerifyModel.validateState === 'success'
+  })
+
   const backgroundImage = computed(() => {
     // 根据背景图数组的长度随机选择索引
     const randIndex = Math.floor(Math.random() * unref(allVerifyImages).length)
-    return {
-      // 获取对应的图片资源并将其设置到`background-image`属性上
-      backgroundImage: `url(${this.unref(allVerifyImages)[randIndex]})`
-    }
+    return unref(allVerifyImages)[randIndex]
+  })
+
+  const showClass = computed(() => {
+    return [
+      unref(validateIsOk) ? 'success' : '',
+      unref(dragging) ? 'dragging' : ''
+    ]
   })
 
   return {
     deg,
     transformRotate,
     backgroundImage,
-    verifyIsOk
+    verifyIsOk,
+    dragging,
+    showClass
   }
 }
 
 const useInteractive = (
   value,
   deg,
-  verifyIsOk
+  verifyIsOk,
+  correctValue
 ) => {
   const setDeg = value => {
-    deg.value = (1 - unref(value)) * 360 + 'deg'
+    deg.value = (100 + unref(correctValue) - unref(value)) * 3.60 + 'deg'
   }
 
   const handleReset = () => { // 重置，暂时不知道具体操作
@@ -79,6 +98,7 @@ const useInteractive = (
 
 export default {
   name: 'VerifyImg',
+  components: { LoadingImg },
   props: {
     correctValue: {
       type: Number,
@@ -91,18 +111,24 @@ export default {
       require: true
     }
   },
+  inject: ['VerifyModel'],
   setup (props) {
+    const VerifyModel = inject('VerifyModel', {})
     const {
-      value
+      value,
+      correctValue
     } = toRefs(props)
 
     const {
       deg,
       transformRotate,
       backgroundImage,
-      verifyIsOk
+      verifyIsOk,
+      dragging,
+      showClass
     } = useVerifyImg(
-      allImages
+      allImages,
+      VerifyModel
     )
 
     const {
@@ -112,7 +138,8 @@ export default {
     } = useInteractive(
       value,
       deg,
-      verifyIsOk
+      verifyIsOk,
+      correctValue
     )
 
     onMounted(() => {
@@ -124,7 +151,9 @@ export default {
       backgroundImage,
       handleSuccess,
       handleReset,
-      verifyIsOk
+      verifyIsOk,
+      dragging,
+      showClass
     }
   }
 }
@@ -137,6 +166,7 @@ export default {
     overflow: hidden;
     margin: 0 auto;
     border-radius: 300px;
+    transition: 0.5s;
     i{
       position: absolute;
       top: 25%;
@@ -146,12 +176,17 @@ export default {
       font-size: 150px;
       color: var(--theme-color);
       transition: 500ms;
+      text-shadow: #b39516 0 0 5px;
+    }
+    img{
+      user-select: none;
     }
   }
-  .verify-img.active:before{
+  .verify-img.success:before{
     content: '';
     font-size: 50px;
-    background: var(--main-color);
+    background: linear-gradient(132deg, var(--main-color), var(--theme-color));
+    box-shadow:0 0 50px 30px var(--main-color) inset;
     opacity: 0.6;
     position: relative;
     z-index: 10;
@@ -161,9 +196,18 @@ export default {
     width: 100%;
     height: 100%;
   }
-  .verify-img.active{
+  .verify-img.success{
     i{
       opacity: 1;
     }
+    .image{
+      position: absolute;
+      z-index: 5;
+      top: 0;
+      left: 0;
+    }
+  }
+  .verify-img.dragging{
+    transition: none;
   }
 </style>
