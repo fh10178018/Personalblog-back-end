@@ -72,10 +72,10 @@ describe('Message',() => {
 
   it('[actions] close all', done => {
     Message({
-      content: '求你关我'
+      content: '求你关我！'
     })
     Message({
-      content: '求你关我'
+      content: '求你关我！'
     })
     setTimeout(() => {
       Message.closeAll()
