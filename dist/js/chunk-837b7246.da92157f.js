@@ -1,2 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-837b7246"],{"0c32":function(c,n,e){},"80c8":function(c,n,e){"use strict";e("0c32")},bb51:function(c,n,e){"use strict";e.r(n);var o=e("5c40"),t=e("cf05"),u=e.n(t),i={class:"home"},r=Object(o["l"])("img",{alt:"Vue logo",src:u.a},null,-1);function s(c,n){return Object(o["u"])(),Object(o["f"])("div",i,[r])}var a={name:"Home"};e("80c8");a.render=s;n["default"]=a},cf05:function(c,n,e){c.exports=e.p+"img/logo.82b9c7a5.png"}}]);
-//# sourceMappingURL=chunk-837b7246.da92157f.js.map
