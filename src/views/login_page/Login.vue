@@ -2,7 +2,7 @@
     <div class="login-wraper">
       <div class="box">
         <div class="title">个人博客后端登陆</div>
-        <Form :model="loginData" :rules="rules">
+        <Form :model="loginData" :rules="rules" ref="ruleForm">
           <FormItem rulesName="username">
             <InputString
               placeholder="账号"
@@ -15,92 +15,139 @@
               type="password"
               v-model="loginData.password"/>
           </FormItem>
+          <FormItem rulesName="verifyRes">
+            <Verify
+              v-model="loginData.verifyRes"
+              ref="verify"
+            />
+          </FormItem>
+          <FormItem style="width: 100%;text-align: center">
+            <Button size="large" :loading="isLoading" round type="theme" :style="{width: '100%'}"  @click="submitForm">
+              <span>登陆</span>
+            </Button>
+          </FormItem>
         </Form>
-        <transition name="unfold">
-          <Verify
-            v-if="isUsername && isPassword && DestroyVerify"
-            @message="handleVerifyOk"
-            ref="verify"
-          />
-        </transition>
-        <div class="btn-login">
-          <Button size="large" :loading="isLoading" round type="theme" :style="{width: '100%'}" :disabled="buttonDisabled" @click="login">
-            <span>登陆</span>
-          </Button>
-        </div>
       </div>
     </div>
 </template>
 
 <script>
-import { mapActions, mapMutations } from 'vuex'
+import {
+  ref,
+  unref,
+  reactive,
+  toRefs
+} from 'vue'
+import { useStore } from 'vuex'
 import InputString from 'components/common/InputString/InputString'
 import Button from 'components/common/Button/Button'
 import Verify from 'components/common/Verify/Verify'
 import FormItem from '../../components/common/FormItem/FormItem'
+
+const useVerify = () => {
+  const ruleForm = ref(null) // 用于绑定实例
+  const isLoading = ref(false) // 登陆是否处于加载
+  const loginData = reactive({
+    username: '',
+    password: '',
+    verifyRes: false
+  })
+
+  const rules = reactive({
+    username: [
+      { required: true, message: '请输入活动名称', trigger: 'blur' },
+      { min: 3, max: 32, message: '长度为 3 到 32 个字符', trigger: 'blur' }
+    ],
+    password: [
+      { required: true, message: '请输入密码', trigger: 'blur' }
+    ],
+    verifyRes: [{
+      validator: function (rule, value, callback) {
+        if (value) {
+          callback()
+        } else {
+          callback(new Error('请进行验证'))
+        }
+      },
+      trigger: 'change'
+    }]
+  })
+
+  return {
+    ruleForm,
+    loginData,
+    isLoading,
+    rules
+  }
+}
+
+const useInteractive = (
+  ruleForm,
+  store,
+  loginData,
+  isLoading
+) => {
+  const getRuleForm = () => { // 获得实例对象
+    return unref(ruleForm)
+  }
+
+  const resetForm = () => {
+    getRuleForm().resetFields()
+  }
+
+  const submitForm = () => {
+    getRuleForm().validate((valid) => {
+      if (valid) { // 验证都成功
+        isLoading.value = true
+        store.dispatch('LoginAction', { ...toRefs(loginData) }).then(res => {
+          isLoading.value = false
+          store.dispatch('getUserInfo')
+          store.commit('LOGIN', { Authorization: 'Bearer ' + res })
+          this.$router.push({ path: '/power' })
+        }).catch(() => {
+          console.log('as')
+          isLoading.value = false
+          resetForm()
+        })
+      } else {
+        return false
+      }
+    })
+  }
+
+  return {
+    submitForm
+  }
+}
+
 export default {
   name: 'Login',
-  components: { FormItem, Verify, Button, InputString },
-  methods: {
-    ...mapActions(['LoginAction', 'getUserInfo']),
-    ...mapMutations(['LOGIN']),
-    handleVerifyOk () {
-      this.isVerify = true
-    },
-    reset () {
-      this.DestroyVerify = false
-      this.$nextTick(() => {
-        this.DestroyVerify = true
-      })
-      Object.assign(this.$data, this.$options.data.call(this))
-    },
-    usernameIsOk (isUsername) {
-      this.isUsername = isUsername
-    },
-    passwordIsOk (isPassword) {
-      this.isPassword = isPassword
-    },
-    login () {
-      this.isLoading = true
-      this.LoginAction(this.loginData).then(res => {
-        this.isLoading = false
-        this.getUserInfo()
-        this.LOGIN({ Authorization: 'Bearer ' + res })
-        this.$router.push({ path: '/power' })
-      }).catch(() => {
-        this.isLoading = false
-        this.reset()
-      })
-    }
-  },
-  data () {
+  components: { FormItem, Button, InputString, Verify },
+  setup () {
+    const store = useStore()
+
+    const {
+      ruleForm,
+      loginData,
+      isLoading,
+      rules
+    } = useVerify()
+
+    const {
+      submitForm
+    } = useInteractive(
+      ruleForm,
+      store,
+      loginData,
+      isLoading
+    )
+
     return {
-      DestroyVerify: true,
-      loginData: {
-        username: '',
-        password: ''
-      },
-      isVerify: false,
-      isUsername: false,
-      isPassword: false,
-      isLoading: false,
-      rules: {
-        username: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 32, message: '长度为 3 到 32 个字符', trigger: 'blur' }
-        ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' }
-        ]
-      }
-    }
-  },
-  computed: {
-    buttonDisabled () {
-      if (this.isUsername && this.isPassword && this.isVerify) {
-        return this.isLoading
-      }
-      return true
+      submitForm,
+      ruleForm,
+      loginData,
+      rules,
+      isLoading
     }
   }
 }
