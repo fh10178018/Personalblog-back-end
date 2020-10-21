@@ -73,7 +73,8 @@ export default {
       'FormItem',
       reactive({
         name: 'FormItem',
-        validateResult
+        validateResult,
+        resetField
       })
     )
 
