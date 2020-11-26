@@ -17,13 +17,16 @@ router.beforeEach((to, from, next) => {
   } else {
     document.title = to.matched[0].meta.title
   }
+  if (store.state.isConnected === null) {
+    store.dispatch('determineConnected')
+  }
   if (to.path === '/login') { // 未登陆拦截
     next()
   } else {
     const isToken = !!localStorage.Authorization
     isToken ? next() : next('/login')
   }
-  if (toRefs(store.state.userInfo)._id.value === -1) {
+  if (toRefs(store.state.User.userInfo)._id.value !== -1) {
     store.dispatch('getUserInfo')
   }
 })
