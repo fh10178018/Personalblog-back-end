@@ -1,10 +1,10 @@
-## InputString 输入框
+## Form&&FormItem 表单组件框
 
-**包含了常用的 InputString 字符串输入框**
+**包含了常用的 Form&&FormItem 表单组件框, 主要用于输入框验证**
 
 ### 基本用法
 
-#### 按钮类型
+#### 输入框类型
 支持 `text`、`password` 两种类型，默认为 `text`
 ```html
 <InputString type="text">正常字符串输入框</InputString>
