@@ -4,7 +4,7 @@ import InputString from './InputString'
 import Form from './Form'
 import FormItem from './FormItem'
 import Verify from './Verify'
-import ButtonSlide from './ButtonSlide'
+import Slider from './Slider'
 
 const components = [
   Button,
@@ -12,7 +12,7 @@ const components = [
   FormItem,
   Form,
   Verify,
-  ButtonSlide
+  Slider
 ]
 
 const install = (app) => {
