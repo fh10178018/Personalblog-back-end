@@ -1,23 +1,9 @@
-import { post, get } from 'http/index'
-import showMessage from 'components/common/Message'
+import { get } from 'http/index'
 
 const actions = {
-  LoginAction (context, loginData) {
-    return post('/user/login', loginData)
-  },
-  LogoutAction (context, loginData) {
-  },
-  getUserInfo (context) {
-    return get('/user').then(res => {
-      console.log(context.state.userInfo)
-      for (const key in res) {
-        context.state.userInfo[key] = res[key]
-      }
-      console.log(context.state.userInfo)
-      showMessage({
-        content: '你好！' + res.name,
-        type: 'success'
-      })
+  determineConnected (context) { // 用于判断是否连接到后端
+    return get('/connected').then(res => {
+      context.commit('CONNECTEDSTATUS', true)
     })
   }
 }
