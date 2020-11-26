@@ -28,13 +28,17 @@ axios.interceptors.request.use(config => {
   return config
 })
 
+const httpStatus = {
+  500: '尚未连接到后端'
+}
+
 // 相应拦截，错误处理
 axios.interceptors.response.use(res => {
   return res
 }, error => {
   if (error.response) {
     showMessage({
-      content: error.response.data,
+      content: httpStatus[error.response.status] ? httpStatus[error.response.status] : error.response.data,
       type: 'error'
     })
     switch (error.response.status) {
