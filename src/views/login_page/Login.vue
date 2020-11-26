@@ -99,6 +99,7 @@ const useInteractive = (
     getRuleForm().validate((valid) => {
       if (valid) { // 验证都成功
         isLoading.value = true
+        console.log(...toRefs(loginData))
         store.dispatch('LoginAction', { ...toRefs(loginData) }).then(res => {
           isLoading.value = false
           store.dispatch('getUserInfo')
