@@ -17,9 +17,27 @@ const EVENT_NAME_KEY = Symbol('ELEMENT_EVENTS')
 
 export function useEmitter (instance = getCurrentInstance()) {
   return {
+    onDom: onDom(),
     on: on(instance),
     dispatch: dispatch(instance),
     off: off(instance)
+  }
+}
+
+/* 根据element监听 */
+export const onDom = function () {
+  if (document.addEventListener) {
+    return function (element, event, handler) {
+      if (element && event && handler) {
+        element.addEventListener(event, handler, false)
+      }
+    }
+  } else {
+    return function (element, event, handler) {
+      if (element && event && handler) {
+        element.attachEvent('on' + event, handler)
+      }
+    }
   }
 }
 
