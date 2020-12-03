@@ -3,20 +3,20 @@ const Layout = () => import('@/views/functional_page/Layout.vue')
 const Login = () => import('@/views/login_page/Login.vue')
 const WebCodeEdit = () => import('@/views/edit_page/WebCodeEdit.vue')
 const Articles = () => import('../components/content/Articles/Articles.vue')
+const UserControl = () => import('../components/content/UserControl/UserControl.vue')
+const AdminBox = () => import('../components/content/UserControl/AdminControl/AdminBox.vue')
 const Articleslist = () => import('../components/content/Articles/Articleslist.vue')
 const ArticleEdit = () => import('@/views/edit_page/ArticleEdit.vue')
 const DirectionEdit = () => import('@/views/edit_page/DirectionEdit.vue')
 const Documents = () => import('../components/content/Documents/Documents.vue')
 const Document = () => import('../components/content/Documents/Document.vue')
-
 const routes = [
   {
     path: '/',
-    redirect: '/login'
+    redirect: '/power'
   },
   {
     path: '/login',
-    name: 'Login',
     component: Login,
     meta: {
       title: '个人博客后端-登陆界面',
@@ -25,7 +25,6 @@ const routes = [
   },
   {
     path: '/power',
-    name: 'Power',
     component: Layout,
     meta: {
       title: '个人博客后端-',
@@ -38,7 +37,6 @@ const routes = [
       },
       {
         path: 'home',
-        name: 'Home',
         component: Home,
         meta: {
           title: '个人博客后端-主页',
@@ -47,18 +45,15 @@ const routes = [
       },
       {
         path: 'content',
-        name: 'Content',
         component: Articles,
         children: [
           {
             path: '',
-            redirect: to => {
-              to.params.sortname = 'article'
-              return '/power/content/article'
-            }
+            redirect: { name: 'Articleslist', params: { sortname: 'article' } }
           },
           {
             path: ':sortname',
+            name: 'Articleslist',
             component: Articleslist,
             meta: {
               title: '内容页面'
@@ -71,17 +66,14 @@ const routes = [
       },
       {
         path: 'docs',
-        name: 'Docs',
         component: Documents,
         children: [
           {
             path: '',
-            redirect: to => {
-              to.params.docsId = '0'
-              return '/power/docs/0'
-            }
+            redirect: { name: 'docs', params: { docsId: 0 } }
           },
           {
+            name: 'docs',
             path: ':docsId',
             component: Document,
             meta: {
@@ -91,6 +83,24 @@ const routes = [
         ],
         meta: {
           title: '组件属性页面'
+        }
+      },
+      {
+        path: 'usercontrol',
+        component: UserControl,
+        children: [
+          {
+            path: '',
+            redirect: '/power/usercontrol/admin'
+          },
+          {
+            path: 'admin',
+            name: 'AdminBox',
+            component: AdminBox
+          }
+        ],
+        meta: {
+          title: '内容页面'
         }
       }
     ]
