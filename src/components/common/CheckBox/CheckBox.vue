@@ -1,23 +1,20 @@
 <template>
   <div class="check-box-wrap">
-    <input
-      :focus="(focused = true)"
-      :blur="(focused = false)"
-      :id="labelID"
-      type="checkbox"
-      v-model="isChecked"
-    />
-    <label
-      :for="labelID"
-      class="check-box"
-      :class="[isChecked ? 'isChecked' : '']"
-    ></label>
-    <div class="text" v-if="label">{{ label }}</div>
+
+    <input :id="labelID"
+           type="checkbox"
+           v-model="isChecked" />
+    <label :for="labelID"
+           class="check-box"
+           :class="[isChecked ? 'isChecked' : '']"></label>
+    <div class="text"
+         v-if="label || slots">{{ label }}<slot></slot>
+    </div>
   </div>
 </template>
 <script>
-import { reactive, ref, toRefs, unref, watch, nextTick, computed } from 'vue'
-import randomID from '../../../utils/randomID.js'
+import { toRefs, unref, watch, nextTick, getCurrentInstance } from 'vue'
+import { useCheckBox } from './use.js'
 import { useEmitter } from '../../../utils/emmiter'
 
 export default {
@@ -34,23 +31,18 @@ export default {
       default: true
     }
   },
-  setup (props, { emit }) {
-    const state = reactive({
-      focused: false
-    })
+  setup (props, { emit, slots }) {
     const { dispatch } = useEmitter()
     const { modelValue, value, validateEvent } = toRefs(props)
-    const isChecked = ref(modelValue.value)
-    const checkbox = ref(null)
-    const labelID = ref(randomID())
-    const setValue = computed(() => { // 当没有传vlaue值时，传值以isChecked的Boolean为主
-      return unref(value) === undefined ? unref(isChecked) : unref(value)
-    })
+    const curInstance = getCurrentInstance()
+    const [isChecked, labelID, parent, isGroup, setValue] = useCheckBox(modelValue, value, curInstance)
     const handleChange = () => {
-      if (unref(isChecked)) {
-        emit('push-item', unref(setValue))
-      } else {
-        emit('remove-item', unref(setValue))
+      if (unref(isGroup)) {
+        if (unref(isChecked)) {
+          unref(parent).ctx.handlePushItem(unref(setValue))
+        } else {
+          unref(parent).ctx.handleRemoveItem(unref(setValue))
+        }
       }
       emit('update:modelValue', unref(isChecked))
     }
@@ -68,20 +60,25 @@ export default {
     )
     return {
       isChecked,
-      checkbox,
       labelID,
-      ...toRefs(props),
-      ...toRefs(state)
+      handleChange,
+      slots,
+      ...toRefs(props)
     }
   }
 }
 </script>
 <style lang="less">
-input[type='checkbox'] {
+input[type="checkbox"] {
   display: none;
 }
 .check-box-wrap {
-  display: inline;
+  display: flex;
+  .text {
+    margin-left: 10px;
+    color: var(--font-main-color);
+    font-weight: 500;
+  }
 }
 .check-box {
   height: 18px;
@@ -99,9 +96,9 @@ input[type='checkbox'] {
   box-sizing: border-box;
   opacity: 0;
   position: absolute;
-  top: 9px;
-  right: -10px;
-  width: 18px;
+  top: 8px;
+  right: -9px;
+  width: 16px;
   height: 4px;
   transform: rotate(-45deg);
   background-color: var(--light-color);
@@ -110,7 +107,7 @@ input[type='checkbox'] {
   border-radius: 1px;
   box-shadow: 0 0 0 2px var(--main-color);
   transition: 500ms;
-  content: ' ';
+  content: " ";
 }
 .check-box:after {
   opacity: 0;
@@ -127,7 +124,7 @@ input[type='checkbox'] {
   transform-origin: left top;
   border-radius: 1px;
   transition: 500ms;
-  content: ' ';
+  content: " ";
 }
 .isChecked:before,
 .isChecked:after {
