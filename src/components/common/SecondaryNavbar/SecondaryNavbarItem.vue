@@ -1,9 +1,9 @@
 <template>
-  <Tooltip :content="description" :placement="right">
+  <Tooltip :content="description" :placement="place">
     <router-link class="articles-nav" :to="href">
-      <div class="img"><slot name="item-img"></slot></div>
+      <div class="img" v-if="showImg"><slot name="itemImg"></slot></div>
       <div class="info">
-        <div class="name"><slot name="item-title"></slot></div>
+        <div class="name"><slot name="itemTitle"></slot></div>
         <div class="description">{{description}}</div>
       </div>
     </router-link>
@@ -11,12 +11,19 @@
 </template>
 
 <script>
+import { computed, ref } from 'vue'
 import Tooltip from '../Tooltip/Tooltip'
 export default {
   name: 'SecondaryNavbarItem',
-  data () {
+  setup (props, { slots }) {
+    const place = ref('right')
+    const showImg = computed(() => {
+      return slots.itemImg
+    })
     return {
-      right: 'right'
+      place,
+      showImg,
+      ...props
     }
   },
   props: {
