@@ -156,7 +156,7 @@ const useInteractive = (
 export default {
   name: 'VerifyModel',
   components: { Form, FormItem, VerifyImg, Slider, Modal },
-  inject: ['verify'],
+  injection: ['verify'],
   setup () {
     const store = useStore()
     const state = store.state

@@ -111,7 +111,7 @@ export default {
       require: true
     }
   },
-  inject: ['VerifyModel'],
+  injection: ['VerifyModel'],
   setup (props) {
     const VerifyModel = inject('VerifyModel', {})
     const {

@@ -1,10 +1,24 @@
 <template>
-  <div class="verify-wrap" :key="id">
-    <Button v-if="!nativeValue" :isButton="false" size="large" round :type="isPenalty?'error':'none'" :style="{width: '100%'}" :disabled="isPenalty" @click="handleShow">
+  <div class="verify-wrap"
+       :key="id">
+    <Button v-if="!nativeValue"
+            :isButton="false"
+            size="large"
+            round
+            :type="isPenalty?'error':'theme'"
+            :style="{width: '100%'}"
+            :disabled="isPenalty"
+            @click="handleShow">
       <template v-if="isPenalty">失败过多，请等待 {{showTimeDifference}}</template>
-      <template v-else>点击验证</template>
+      <template v-else>点击验证<span class="v-icon"><i class="fa fa-user-circle-o"></i></span></template>
     </Button>
-    <Button v-else :isButton="false" size="large" round :type="'success'" :style="{width: '100%'}" :disabled="true">
+    <Button v-else
+            :isButton="false"
+            size="large"
+            round
+            :type="'success'"
+            :style="{width: '100%'}"
+            :disabled="true">
       <i class="fa fa-check"></i> 验证成功
     </Button>
     <verify-model ref="verifyModal"></verify-model>
@@ -44,7 +58,6 @@ const useVerify = (
   })
 
   const nativeValue = computed(() => {
-    console.log(unref(modelValue))
     return unref(modelValue)
   })
 
@@ -177,12 +190,44 @@ export default {
 </script>
 
 <style lang="less">
-  .verify-content{
-    text-align: center;
-    line-height: 30px;
-    p{
-      font-size: 12px;
-      color: var(--light-color);
-    }
+.verify-content {
+  text-align: center;
+  line-height: 30px;
+  p {
+    font-size: 12px;
+    color: var(--light-color);
   }
+}
+.verify-wrap {
+  .btn {
+    display: flex;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  .v-icon {
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    border-radius: 100%;
+    animation: ripple 0.6s linear infinite;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(white, 0.1), 0 0 0 20px rgba(white, 0.1),
+      0 0 0 40px rgba(white, 0.1), 0 0 0 60px rgba(white, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(white, 0.1), 0 0 0 40px rgba(white, 0.1),
+      0 0 0 60px rgba(white, 0.1), 0 0 0 80px rgba(white, 0);
+  }
+}
 </style>
