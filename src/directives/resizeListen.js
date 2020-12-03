@@ -23,6 +23,8 @@ const resizeListen = {
   },
   unmounted (el) {
     if (observer) {
+      oldValue.width = 0
+      oldValue.height = 0
       observer.removeListener(el)
     }
   }
