@@ -9,8 +9,8 @@ import {
 
 export const useInput = (
   slots,
-  { suffixIcon, size, showWordLimit, type, modelValue, readonly, clearable, maxlength, minlength, disabled },
-  { focused, passwordVisible, inputTimes },
+  { suffixIcon, size, showWordLimit, type, modelValue, readonly, clearable, disabled, placeholder },
+  { focused, passwordVisible },
   validateResult,
   needValidateIcon
 ) => {
@@ -89,8 +89,13 @@ export const useInput = (
   const showClass = computed(() => {
     return [
       'input-' + unref(inputSize),
-      unref(validateResult)
+      unref(validateResult),
+      unref(readonly) ? 'isreadonly' : '',
+      unref(disabled) ? 'isdisabled' : ''
     ]
+  })
+  const showPlaceholder = computed(() => {
+    return unref(readonly) ? unref(placeholder) : ''
   })
   const showSuffixVisible = computed(() => {
     return (
@@ -114,7 +119,8 @@ export const useInput = (
     showClearIcon,
     showPwdVisibleIcon,
     showClass,
-    showSuffixVisible
+    showSuffixVisible,
+    showPlaceholder
   }
 }
 export const useInteractive = (
