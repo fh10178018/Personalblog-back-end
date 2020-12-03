@@ -34,6 +34,13 @@ const httpStatus = {
 
 // 相应拦截，错误处理
 axios.interceptors.response.use(res => {
+  switch (res.status) {
+    case 201:
+      showMessage({
+        content: httpStatus[res.status] ? httpStatus[res.status] : res.data,
+        type: 'success'
+      })
+  }
   return res
 }, error => {
   if (error.response) {
