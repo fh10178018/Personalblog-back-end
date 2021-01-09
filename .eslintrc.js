@@ -15,8 +15,8 @@ module.exports = {
   },
 
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
+    'no-console': 'off',
+    'no-debugger': 'off'
   },
 
   overrides: [
@@ -47,5 +47,10 @@ module.exports = {
         jest: true
       }
     }
+  ],
+
+  'extends': [
+    'plugin:vue/vue3-essential',
+    '@vue/standard'
   ]
 }
