@@ -5,6 +5,9 @@ import store from './store'
 import common from '../src/components/common'
 import hljs from 'highlight.js'
 import resizeListen from './directives/resizeListen'
+import positionListen from './directives/positionListen'
+import clickoutside from './directives/clickoutside'
+import Loading from '@/components/common/Loading/directive'
 // new Vue({
 //   el:"#app",
 //   router:router,
@@ -22,8 +25,11 @@ export const vue = createApp(App)
   .use(store)
   .use(hljs)
   .use(common)
+  .use(Loading)
   .use(router)
   .directive('resize', resizeListen)
+  .directive('position', positionListen)
+  .directive('clickoutside', clickoutside)
   .directive('highlight', (el) => {
     const blocks = el.querySelectorAll('pre code')
     blocks.forEach((block) => {
