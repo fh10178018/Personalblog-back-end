@@ -1,7 +1,7 @@
 <template>
   <secondary-navbar>
     <secondary-navbar-item v-for="(item, index) in allDocs" :key="index" :href="'/power/docs/' + item._id" :description="item.name + ' 组件文档'">
-      <template v-slot:item-title>{{item.name}}</template>
+      <template v-slot:itemTitle>{{item.name}}</template>
     </secondary-navbar-item>
   </secondary-navbar>
 </template>

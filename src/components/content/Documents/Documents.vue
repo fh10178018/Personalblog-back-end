@@ -1,6 +1,6 @@
 <template>
   <div class="documents-wrapper">
-    <DocumentsHeader ></DocumentsHeader>
+    <DocumentsHeader></DocumentsHeader>
     <router-view v-slot="{ Component }">
       <component :is="Component"></component>
     </router-view>

@@ -11,8 +11,8 @@ export default {
   computed: {
     ...mapState({ allDocs: state => state.componentsDocs.allDocs }),
     getDocs () {
-      const id = this.$route.params.docsId * 1
-      return this.allDocs[id].docs
+      const id = this.$route.params.docsId * 1 || 0
+      return this.allDocs[id] && this.allDocs[id].docs
     }
   }
 }
