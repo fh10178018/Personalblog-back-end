@@ -6,12 +6,12 @@
             :rules="rules"
             ref="ruleForm">
         <FormItem rulesName="username">
-          <InputString placeholder="账号"
+          <InputString placeholder="你的账号？"
                        v-model="loginData.username"
                        clearable />
         </FormItem>
         <FormItem rulesName="password">
-          <InputString placeholder="密码"
+          <InputString placeholder="你的密码？"
                        type="password"
                        v-model="loginData.password" />
         </FormItem>
@@ -37,7 +37,8 @@
 import {
   ref,
   unref,
-  reactive
+  reactive,
+  computed
 } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
@@ -47,9 +48,9 @@ import Verify from 'components/common/Verify/Verify'
 import FormItem from '../../components/common/FormItem/FormItem'
 import reactiveToObject from '../../utils/reactiveToObject'
 
-const useVerify = () => {
+const useVerify = (store) => {
   const ruleForm = ref(null) // 用于绑定实例
-  const isLoading = ref(false) // 登陆是否处于加载
+  const isLoading = computed(() => unref(store.state.User.isLoading).table)
   const loginData = reactive({
     username: '',
     password: '',
@@ -58,7 +59,7 @@ const useVerify = () => {
 
   const rules = reactive({
     username: [
-      { required: true, message: '请输入活动名称', trigger: 'blur' },
+      { required: true, message: '请输入账号', trigger: 'blur' },
       { min: 3, max: 32, message: '长度为 3 到 32 个字符', trigger: 'blur' }
     ],
     password: [
@@ -102,18 +103,7 @@ const useInteractive = (
   const submitForm = () => {
     getRuleForm().validate((valid) => {
       if (valid) { // 验证都成功
-        isLoading.value = true
-        store.dispatch('LoginAction', reactiveToObject(loginData)).then(res => {
-          setTimeout(() => {
-            isLoading.value = false
-            store.dispatch('getUserInfo')
-            store.commit('LOGIN', { Authorization: 'Bearer ' + res })
-            router.push({ path: '/power' })
-          }, 500)
-        }).catch(() => {
-          isLoading.value = false
-          resetForm()
-        })
+        store.dispatch('LoginAction', { loginData: reactiveToObject(loginData), resetForm: resetForm })
       } else {
         return false
       }
@@ -137,7 +127,7 @@ export default {
       loginData,
       isLoading,
       rules
-    } = useVerify()
+    } = useVerify(store)
 
     const {
       submitForm
