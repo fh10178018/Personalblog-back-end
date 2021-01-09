@@ -1,6 +1,7 @@
-import { post, get } from 'http/index'
+import { post, get, deleteAxios } from 'http/index'
 import showMessage from 'components/common/Message'
 import { reactive, ref } from 'vue'
+import router from '../../router'
 
 // 创建响应式状态
 const userInfo = reactive({
@@ -10,25 +11,44 @@ const userInfo = reactive({
   name: ''
 })
 const AdminUserList = reactive([])
+const isRefresh = false
 const isLoading = reactive({
   delete: false,
   table: false,
-  edit: false
+  edit: false,
+  password: false,
+  login: false
 })
 const totalList = ref(0)
 const state = {
   Authorization: localStorage.getItem('Authorization') ? localStorage.getItem('Authorization') : '',
+  refreshAuthorization: localStorage.getItem('refreshAuthorization') ? localStorage.getItem('refreshAuthorization') : '',
   userInfo,
   AdminUserList,
   isLoading,
-  totalList
+  totalList,
+  isRefresh
 }
 
 const actions = {
-  LoginAction (context, loginData) {
-    return post('/user/login', loginData)
+  LoginAction (context, data) {
+    context.state.isLoading.login = true
+    return post('/user/login', data.loginData).then(res => {
+      setTimeout(() => {
+        context.state.isLoading.login = false
+        context.commit('LOGIN', { Authorization: 'Bearer ' + res.token })
+        context.commit('SETREFRESHTOKEN', { refreshAuthorization: 'Bearer ' + res.refreshToken }) // 创建Token刷新
+        router.push({ path: '/power' })
+      }, 500)
+    }).catch(() => {
+      context.state.isLoading.login = false
+      data.resetForm()
+    })
   },
-  LogoutAction (context, loginData) {
+  LogoutAction (context) {
+    context.commit('LOGOUT')
+    post('/user/logout')
+    router.push({ path: '/login', query: { redirect: router.currentRoute.fullPath } })
   },
   getUserInfo (context) {
     return get('/user').then(res => {
@@ -39,6 +59,15 @@ const actions = {
         content: '你好！' + res.name,
         type: 'success'
       })
+    })
+  },
+  refreshToken (context, refreshAuthorization) { // 用于在token失效，获取新的token
+    context.commit('SETREFRESHSTATUS', false)
+    return post('/user/refreshtoken', { refreshAuthorization }).then(res => {
+      context.commit('LOGIN', { Authorization: 'Bearer ' + res.token })
+      context.commit('SETREFRESHTOKEN', { refreshAuthorization: 'Bearer ' + res.refreshToken }) // 创建Token刷新
+    }).catch(res => { // 说明真的是长时间没登陆，我们将其导向login界面
+      router.push({ path: '/login', query: { redirect: router.currentRoute.fullPath } })
     })
   },
   getAdminUserList (context, tableQuery) {
@@ -57,7 +86,7 @@ const actions = {
   },
   deleteAdminUser (context, _id) {
     context.state.isLoading.delete = true
-    return post('/user/deleteAdminUser', _id).then(res => {
+    return deleteAxios('/user/deleteAdminUser', _id).then(res => {
       context.state.isLoading.delete = false
       context.dispatch('getAdminUserList', { page: 1, rows: 20 })
     }).catch(() => {
@@ -80,6 +109,21 @@ const actions = {
         context.state.isLoading.edit = false
       }, 20)
     })
+  },
+  EditAdminUserPassword (context, operation) {
+    const { adminDate, handleModalFade } = operation
+    context.state.isLoading.password = true
+    return post('/user/editAdminUserPassword', adminDate).then(res => {
+      context.dispatch('getAdminUserList', { page: 1, rows: 20 })
+      setTimeout(() => {
+        context.state.isLoading.password = false
+        handleModalFade()
+      }, 20)
+    }).catch(() => {
+      setTimeout(() => {
+        context.state.isLoading.password = false
+      }, 20)
+    })
   }
 }
 
@@ -89,9 +133,18 @@ const mutations = {
     state.Authorization = user.Authorization
     localStorage.setItem('Authorization', user.Authorization)
   },
+  SETREFRESHSTATUS (state, status) {
+    state.isRefresh = status
+  },
+  SETREFRESHTOKEN (state, user) {
+    state.refreshAuthorization = user.refreshAuthorization
+    localStorage.setItem('refreshAuthorization', user.refreshAuthorization)
+  },
   LOGOUT (state) {
     localStorage.removeItem('Authorization')
     state.Authorization = null
+    localStorage.removeItem('refreshAuthorization')
+    state.refreshAuthorization = null
   },
   GETADMINUSERLIST (state, userlist) {
     state.AdminUserList = userlist
