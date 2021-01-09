@@ -1,19 +1,24 @@
 <template>
   <div class="check-box-wrap">
-
     <input :id="labelID"
            type="checkbox"
-           v-model="isChecked" />
+           ref="checkbox"
+           @change="handleChange"
+           @input="model = { label, checked: $event.target.checked }" />
     <label :for="labelID"
-           class="check-box"
-           :class="[isChecked ? 'isChecked' : '']"></label>
+           :class="[isChecked ? 'isChecked' : '']"
+           class="check-box"></label>
     <div class="text"
-         v-if="label || slots">{{ label }}<slot></slot>
+         v-if="label && showLabel">{{ label }}
+    </div>
+    <div class="text"
+         v-else>
+      <slot></slot>
     </div>
   </div>
 </template>
 <script>
-import { toRefs, unref, watch, nextTick, getCurrentInstance } from 'vue'
+import { toRefs, getCurrentInstance, inject } from 'vue'
 import { useCheckBox } from './use.js'
 import { useEmitter } from '../../../utils/emmiter'
 
@@ -21,7 +26,6 @@ export default {
   name: 'CheckBox',
   props: {
     label: [String, Symbol, Number],
-    value: [String, Symbol, Number],
     modelValue: {
       type: Boolean,
       default: false
@@ -29,40 +33,28 @@ export default {
     validateEvent: { // 开启验证事件
       type: Boolean,
       default: true
+    },
+    showLabel: {
+      type: Boolean,
+      default: true
     }
   },
+  emits: ['update:modelValue', 'change'],
   setup (props, { emit, slots }) {
     const { dispatch } = useEmitter()
-    const { modelValue, value, validateEvent } = toRefs(props)
-    const curInstance = getCurrentInstance()
-    const [isChecked, labelID, parent, isGroup, setValue] = useCheckBox(modelValue, value, curInstance)
-    const handleChange = () => {
-      if (unref(isGroup)) {
-        if (unref(isChecked)) {
-          unref(parent).ctx.handlePushItem(unref(setValue))
-        } else {
-          unref(parent).ctx.handleRemoveItem(unref(setValue))
-        }
-      }
-      emit('update:modelValue', unref(isChecked))
-    }
+    const CheckboxGroup = inject('CheckboxGroup', { props: {} })
 
-    watch(
-      () => unref(isChecked),
-      () => {
-        nextTick(() => {
-          handleChange()
-        })
-        if (unref(validateEvent)) {
-          dispatch('FormItem', 'form-change', unref(isChecked))
-        }
-      }
-    )
+    const { modelValue, label } = toRefs(props)
+    const curInstance = getCurrentInstance()
+    const [labelID, model, checkbox, isChecked, handleChange] = useCheckBox(modelValue, curInstance, CheckboxGroup, emit, dispatch, label)
+
     return {
-      isChecked,
       labelID,
-      handleChange,
+      model,
       slots,
+      checkbox,
+      handleChange,
+      isChecked,
       ...toRefs(props)
     }
   }
@@ -73,7 +65,9 @@ input[type="checkbox"] {
   display: none;
 }
 .check-box-wrap {
-  display: flex;
+  display: inline-flex;
+  margin-right: 15px;
+  margin-bottom: 8px;
   .text {
     margin-left: 10px;
     color: var(--font-main-color);
