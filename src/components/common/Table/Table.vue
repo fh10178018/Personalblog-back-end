@@ -3,8 +3,9 @@
     <table class="table"
            border="0"
            cellpadding="0"
+           :class="showClass"
            cellspacing="0">
-      <thead>
+      <thead v-if="showThead">
         <tr>
           <th v-if="showID"
               class="head-id">ID</th>
@@ -13,9 +14,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in tableData"
-            :key="index">
-          <td>{{index}}</td>
+        <tr v-for="(item,index) in tableData"
+            :key="item._id">
+          <td v-if="showID">{{index}}</td>
           <slot :item="item"></slot>
         </tr>
       </tbody>
@@ -61,13 +62,24 @@ export default {
       type: Array,
       require: true,
       default: () => []
+    },
+    showThead: {
+      type: Boolean,
+      default: true
+    },
+    isPointer: {
+      type: Boolean,
+      default: false
     }
   },
   setup (props, { emit }) {
-    const { data, total, pageSize, pageSizes } = toRefs(props)
+    const { data, total, pageSize, pageSizes, isPointer } = toRefs(props)
     const curPageSize = computed(() => unref(pageSize))
     const curPageSizes = computed(() => unref(pageSizes))
     const curTotal = computed(() => unref(total))
+    const showClass = computed(() => ([
+      isPointer ? 'isPointer' : ''
+    ]))
     const tableQuery = reactive({
       page: '1',
       rows: unref(pageSize)
@@ -83,7 +95,8 @@ export default {
       curPageSize,
       handleChange,
       curPageSizes,
-      ...props
+      showClass,
+      ...unref(props)
     }
   }
 }
@@ -92,6 +105,20 @@ export default {
 <style lang="less">
 .table-wrap {
   background-color: var(--main-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  .isPointer {
+    tbody {
+      tr {
+        cursor: pointer;
+      }
+      tr:hover {
+        background-color: var(--lighter-color);
+      }
+    }
+  }
 }
 .table {
   width: 100%;
