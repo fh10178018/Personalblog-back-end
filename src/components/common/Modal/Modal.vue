@@ -10,8 +10,9 @@
               appear>
     <div class="modal-wrap"
          @click.self="handleWrapFade"
+         @keydown.esc.stop.prevent="visible = false"
          :class="{'mask': mask}"
-         v-show="visable">
+         v-show="visible">
       <div class="modal circle"
            :class="showModalClass"
            :style="modalStyle">
@@ -52,7 +53,7 @@ const useModal = (
   size,
   loading
 ) => {
-  const visable = ref(false)
+  const visible = ref(false)
   const showModalClass = computed(() => {
     return [
       unref(circle) ? 'circle' : '',
@@ -71,7 +72,7 @@ const useModal = (
   const isLoading = computed(() => unref(loading))
 
   return {
-    visable,
+    visible,
     modalStyle,
     showModalClass,
     isLoading
@@ -79,7 +80,7 @@ const useModal = (
 }
 
 const useInteractive = (
-  visable,
+  visible,
   emit,
   closeOnClickMask
 ) => {
@@ -89,7 +90,7 @@ const useInteractive = (
   }
   const handleModalFade = () => {
     emit('close')
-    visable.value = false
+    visible.value = false
   }
 
   const afterEnter = () => {
@@ -101,7 +102,7 @@ const useInteractive = (
 
   const handleModalShow = () => {
     emit('open')
-    visable.value = true
+    visible.value = true
   }
 
   return {
@@ -109,7 +110,7 @@ const useInteractive = (
     afterLeave,
     handleModalFade,
     handleModalShow,
-    visable,
+    visible,
     handleWrapFade
   }
 }
@@ -156,7 +157,7 @@ export default {
     const { showModal, top, width, circle, size, loading, closeOnClickMask } = toRefs(props)
 
     const {
-      visable,
+      visible,
       modalStyle,
       showModalClass,
       isLoading
@@ -175,13 +176,13 @@ export default {
       handleModalShow,
       handleWrapFade
     } = useInteractive(
-      visable,
+      visible,
       emit,
       closeOnClickMask
     )
 
     onMounted(() => {
-      visable.value = unref(showModal)
+      visible.value = unref(showModal)
     })
 
     return {
@@ -193,7 +194,7 @@ export default {
       ...toRefs(props),
       afterEnter,
       afterLeave,
-      visable,
+      visible,
       showModalClass,
       isLoading
     }
