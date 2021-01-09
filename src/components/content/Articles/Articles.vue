@@ -2,7 +2,11 @@
   <div class="content">
     <div class="articles-wrapper">
       <ArticlesHeader></ArticlesHeader>
-      <router-view></router-view>
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component"></component>
+        </keep-alive>
+      </router-view>
     </div>
   </div>
 </template>
@@ -16,11 +20,12 @@ export default {
 </script>
 
 <style lang="less">
-  .articles-wrapper{
-    height: 100%;
-  }
-  .content{
-    grid-area: page;
-    height: 100%;
-  }
+.articles-wrapper {
+  height: 100%;
+  display: flex;
+}
+.content {
+  grid-area: page;
+  height: 100%;
+}
 </style>
