@@ -4,7 +4,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': { // 代理标识
-        target: 'http://127.0.0.1:3000', // 指向的实际地址
+        target: process.env.VUE_APP_HTTP_BASEURL, // 指向的实际地址
         changeOrigin: true, // 允许跨域
         pathRewrite: {
           '^/api': '/'
@@ -12,6 +12,7 @@ module.exports = {
       }
     }
   },
+
   chainWebpack: (config) => {
     config.module
       .rule('md')
@@ -28,5 +29,8 @@ module.exports = {
       .set('assets', path.join(__dirname, 'src/assets'))
       .set('http', path.join(__dirname, 'src/http'))
       .set('store', path.join(__dirname, 'src/store'))
-  }
+  },
+
+  lintOnSave: false,
+  publicPath: process.env.VUE_PUBLIC_PATH
 }
