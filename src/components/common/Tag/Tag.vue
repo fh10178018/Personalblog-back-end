@@ -1,6 +1,7 @@
 <template>
-  <span class="tag" :data-color="dataColor">
-    <slot/>
+  <span class="tag"
+        :data-color="dataColor">
+    <slot />
   </span>
 </template>
 
@@ -22,10 +23,12 @@ export default {
 </script>
 
 <style scoped>
-  .tag{
-    background: var(--theme-color);
-    padding: 0.5px 5px;
-    border-radius: 3px;
-    color: white;
-  }
+.tag {
+  background: var(--main-background-color);
+  font-weight: 500;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--theme-color);
+}
 </style>
