@@ -12,11 +12,11 @@ const router = createRouter({
 
 // 前置钩子(hook)
 router.beforeEach((to, from, next) => {
-  if (to.params.sortname) {
-    document.title = to.matched[0].meta.title + '-' + to.params.sortname
-  } else {
-    document.title = to.matched[0].meta.title
-  }
+  // if (to.params.sortname) {
+  //   document.title = to.matched[0].meta.title + '-' + to.params.sortname
+  // } else {
+  //   document.title = to.matched[0].meta.title
+  // }
   // // 判断后端是否正常
   // if (store.state.isConnected === null && to.path === '/login') {
   //   store.dispatch('determineConnected')
@@ -27,7 +27,7 @@ router.beforeEach((to, from, next) => {
     const isToken = !!localStorage.Authorization
     isToken ? next() : next('/login')
   }
-  if (toRefs(store.state.User.userInfo)._id.value === -1) {
+  if (to.path !== '/login' && toRefs(store.state.User.userInfo)._id.value === '') {
     store.dispatch('getUserInfo')
   }
 })
