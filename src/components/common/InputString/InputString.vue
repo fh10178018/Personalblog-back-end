@@ -24,7 +24,7 @@
            :for="inputId">{{ placeholder }}</label>
     <div class="input-suffix"
          v-if="showSuffixVisible">
-      <span class="btn btn-suffix"
+      <span class="input-icon input-icon-suffix"
             v-if="!showClearIcon || !showPwdVisibleIcon || !showWordLimitVisible">
         <slot name="suffix"></slot>
         <i v-if="suffixIcon"
@@ -32,7 +32,7 @@
            :class="suffixIcon"></i>
       </span>
       <span v-if="showValidate"
-            class="btn btn-error">
+            class="input-icon input-icon-error">
         <i class="fa fa-warning"></i>
       </span>
       <!--@mousedown.prevent 非常重要，
@@ -41,19 +41,19 @@
       而prevent可以有效阻止其他事件的发生，先进行该步骤
       -->
       <span v-if="showClearIcon"
-            class="btn btn-clear"
+            class="input-icon input-icon-clear"
             @mousedown.prevent
             @click="handleClear">
         <i class="fa fa-close"></i>
       </span>
       <span v-if="showPwdVisibleIcon"
-            class="btn btn-eye"
+            class="input-icon input-icon-eye"
             @click="handlePasswordVisible">
         <i class="fa"
            :class="'fa-eye' + (!passwordVisible ? '' : '-slash')"></i>
       </span>
       <span v-if="showWordLimit"
-            class="btn btn-limit">
+            class="input-icon input-icon-limit">
         {{ textLength }}/{{ maxlength }}
       </span>
     </div>
@@ -257,7 +257,7 @@ export default {
     cursor: not-allowed;
     background-color: var(--lighter-color);
     + .input-suffix {
-      .btn {
+      .input-icon {
         color: var(--theme-color);
         cursor: not-allowed !important;
       }
@@ -310,7 +310,7 @@ export default {
     position: absolute;
     z-index: 11;
     right: 0;
-    .btn {
+    .input-icon {
       margin: 0 5px;
       cursor: pointer;
       z-index: 11;
@@ -318,19 +318,19 @@ export default {
         transition: transform 500ms;
       }
     }
-    .btn-clear,
-    .btn-eye {
+    .input-icon-clear,
+    .input-icon-eye {
       transition: color 500ms;
       color: var(--light-color);
     }
-    .btn-clear:hover,
-    .btn-eye:hover {
+    .input-icon-clear:hover,
+    .input-icon-eye:hover {
       color: var(--theme-color);
     }
-    .btn-error {
+    .input-icon-error {
       color: var(--error-color) !important;
     }
-    .btn-success {
+    .input-icon-success {
       color: var(--theme-color) !important;
     }
   }
