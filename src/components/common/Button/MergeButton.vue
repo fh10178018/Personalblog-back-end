@@ -3,10 +3,16 @@
 -->
 <template>
   <div class="btn-merge">
-    <button class="btn-left" @click="Click1">
+    <button class="btn-merge-left"
+            @click="handleLeftClick">
       <slot name="left"></slot>
     </button>
-    <button class="btn-right" @click="Click2">
+    <button class="btn-merge-center"
+            @click="handleCenterClick">
+      <slot name="center"></slot>
+    </button>
+    <button class="btn-merge-right"
+            @click="handleRightClick">
       <slot name="right"></slot>
     </button>
   </div>
@@ -15,34 +21,49 @@
 <script>
 export default {
   name: 'MergeButton',
-  methods: {
-    Click1 () {
-      this.$emit('leftclick')
-    },
-    Click2 () {
-      this.$emit('rightclick')
+  setup (props, { emit }) {
+    const handleLeftClick = () => {
+      emit('leftclick')
+    }
+    const handleCenterClick = () => {
+      emit('centerclick')
+    }
+    const handleRightClick = () => {
+      emit('rightclick')
+    }
+    return {
+      handleLeftClick,
+      handleCenterClick,
+      handleRightClick
     }
   }
 }
 </script>
 
 <style lang="less">
-  .btn-merge{
-    border-radius: 100px;
-    overflow: hidden;
-    button{
-      border: 0;
-      padding: 5px 10px;
-      color: var(--main-color);
-      background-color: var(--light-color);
-      cursor: pointer;
-      transition: background-color 500ms;
-    }
-    button:focus{
-      outline: 0;
-    }
-    button:hover{
-      background-color: var(--theme-color);
-    }
+.btn-merge {
+  border-radius: 100px;
+  overflow: hidden;
+  button {
+    border: 0;
+    padding: 5px 10px;
+    color: var(--theme-color);
+    background-color: var(--main-background-color);
+    cursor: pointer;
+    transition: background-color 500ms;
   }
+  button:focus {
+    outline: 0;
+  }
+  button:hover {
+    color: var(--main-color);
+    background-color: var(--theme-color);
+  }
+  .btn-merge-left {
+    border-right: 0.5px solid var(--main-color);
+  }
+  .btn-merge-right {
+    border-left: 0.5px solid var(--main-color);
+  }
+}
 </style>
