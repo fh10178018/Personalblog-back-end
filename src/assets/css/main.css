@@ -1,16 +1,24 @@
-@import "font-awesome.css";
-@import "animate.css";
+@import 'font-awesome.css';
+@import 'animate.css';
+
+@font-face {
+  font-family: 'iconfont';
+  src: url('../fonts/iconfont.woff2?t=1622182584124') format('woff2'),
+    url('../fonts/iconfont.woff?t=1622182584124') format('woff'),
+    url('../fonts/iconfont.ttf?t=1622182584124') format('truetype');
+}
+
 :root {
   --main-background-color: #f4f4f4;
   --main-color: white;
-  --main-font-color: #3C4858;
+  --main-font-color: #3c4858;
   --light-color: #999999;
   /*浅色用于动态样式颜色初始颜色*/
   --theme-color: #d2b356;
   /*全局定义主题颜色变量 默认*/
   --lighter-color: #d2b35666;
-  --error-color: #E33E33;
-  --lighter-error-color: #E33E336D;
+  --error-color: #e33e33;
+  --lighter-error-color: #e33e336d;
   --resume-theme-color: #86ceef;
 }
 /*box-sizing:border-box;宽高会加上padding和border的值，也就是把padding和border算在content内*/
@@ -21,7 +29,7 @@
 }
 body {
   overflow: hidden;
-  font-family: "Roboto", Arial, sans-serif;
+  font-family: 'Roboto', Arial, sans-serif;
   background: var(--main-background-color);
 }
 img {

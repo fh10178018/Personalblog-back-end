@@ -145,6 +145,7 @@ export const useInteractive = (
     getInput().select()
   }
   const setNativeInputValue = () => {
+    debugger
     const input = getInput()
     if (!input) return
     if (input.value === unref(nativeInputValue)) return

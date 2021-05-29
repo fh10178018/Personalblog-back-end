@@ -1,7 +1,9 @@
 <template>
   <div class="sidebar">
     <div class="left">
-      <h2>sa</h2>
+      <h2>
+        <MyBreadcrumb />
+      </h2>
     </div>
     <div class="right">
       <MergeButton v-if="!$route.meta.keepAlive"
@@ -36,6 +38,7 @@
 </template>
 
 <script>
+import MyBreadcrumb from './MyBreadcrumb.vue'
 import MergeButton from '@/components/common/Button/MergeButton.vue'
 import { useStore } from 'vuex'
 import { computed, unref } from 'vue'
@@ -52,7 +55,8 @@ export default {
     MergeButton,
     DropDown,
     DropDownItem,
-    DropDownMenu
+    DropDownMenu,
+    MyBreadcrumb
   },
   setup () {
     const store = useStore()

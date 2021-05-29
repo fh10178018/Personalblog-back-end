@@ -19,6 +19,7 @@ const routes = [
   {
     path: '/login',
     component: Login,
+    name:"login",
     meta: {
       title: '个人博客后端-登陆界面',
       index: 0
@@ -27,6 +28,7 @@ const routes = [
   {
     path: '/power',
     component: Layout,
+    name:"power",
     meta: {
       title: '个人博客后端-',
       index: 1
@@ -38,6 +40,7 @@ const routes = [
       },
       {
         path: 'home',
+        name:"home",
         component: Home,
         meta: {
           title: '个人博客后端-主页',
@@ -46,6 +49,7 @@ const routes = [
       },
       {
         path: 'content',
+        name:"content",
         component: Articles,
         children: [
           {

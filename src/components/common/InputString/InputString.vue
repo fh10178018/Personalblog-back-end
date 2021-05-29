@@ -27,13 +27,11 @@
       <span class="input-icon input-icon-suffix"
             v-if="!showClearIcon || !showPwdVisibleIcon || !showWordLimitVisible">
         <slot name="suffix"></slot>
-        <i v-if="suffixIcon"
-           class="fa"
-           :class="suffixIcon"></i>
+        <Icon  v-if="suffixIcon" :name="suffixIcon"/>
       </span>
       <span v-if="showValidate"
             class="input-icon input-icon-error">
-        <i class="fa fa-warning"></i>
+        <Icon name="warning"/>
       </span>
       <!--@mousedown.prevent 非常重要，
       在做点击清除的时候会使focus变为blur
@@ -44,13 +42,12 @@
             class="input-icon input-icon-clear"
             @mousedown.prevent
             @click="handleClear">
-        <i class="fa fa-close"></i>
+        <Icon name="close"/>
       </span>
       <span v-if="showPwdVisibleIcon"
             class="input-icon input-icon-eye"
             @click="handlePasswordVisible">
-        <i class="fa"
-           :class="'fa-eye' + (!passwordVisible ? '' : '-slash')"></i>
+        <Icon :name="'eye' + (!passwordVisible ? '' : '-slash')"/>
       </span>
       <span v-if="showWordLimit"
             class="input-icon input-icon-limit">
@@ -64,8 +61,10 @@
 import { reactive, toRefs, onMounted, nextTick, watch, unref } from 'vue'
 import { useInput, useValidate, useValidateIcon, useInteractive } from './use'
 import { useEmitter } from '../../../utils/emmiter'
+import Icon from '../Icon'
 
 export default {
+  components: { Icon },
   name: 'InputString',
   emits: ['input', 'change', 'blur', 'clear', 'focus', 'update:modelValue'],
   setup (props, { emit, slots }) {

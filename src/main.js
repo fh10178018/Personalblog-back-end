@@ -21,7 +21,9 @@ const createElm = function () {
   return elm
 }
 
-export const vue = createApp(App)
+const app = createApp(App)
+
+export const vue = app
   .use(store)
   .use(hljs)
   .use(common)
@@ -37,3 +39,7 @@ export const vue = createApp(App)
     })
   })
   .mount(createElm())
+
+  app.config.errorHandler = function(err, vm, info) {
+    console.error(`组件${vm.$el}发生错误：${err.message},${info}`)
+  }
